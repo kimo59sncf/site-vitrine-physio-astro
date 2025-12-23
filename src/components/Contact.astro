@@ -1,0 +1,92 @@
+---
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+---
+
+<section id="contact" class="py-20 md:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-medical-blue mb-4">Nous Contacter</h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Prenez contact avec nous pour toute question ou pour prendre rendez-vous.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div class="bg-light-gray rounded-xl p-8 text-center">
+        <div class="w-14 h-14 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Phone size={24} class="text-white" />
+        </div>
+        <h3 class="text-lg font-bold text-medical-blue mb-2">Téléphone Principal</h3>
+        <a href="tel:+41782556061" class="text-gray-600 hover:text-medical-blue transition-colors font-semibold">
+          078 255 60 61
+        </a>
+      </div>
+
+      <div class="bg-light-gray rounded-xl p-8 text-center">
+        <div class="w-14 h-14 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Phone size={24} class="text-white" />
+        </div>
+        <h3 class="text-lg font-bold text-medical-blue mb-2">Téléphone Secondaire</h3>
+        <a href="tel:+41277444488" class="text-gray-600 hover:text-medical-blue transition-colors font-semibold">
+          027 744 44 88
+        </a>
+      </div>
+
+      <div class="bg-light-gray rounded-xl p-8 text-center">
+        <div class="w-14 h-14 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Mail size={24} class="text-white" />
+        </div>
+        <h3 class="text-lg font-bold text-medical-blue mb-2">Email</h3>
+        <a
+          href="mailto:contact@physiokbnyon.ch"
+          class="text-gray-600 hover:text-medical-blue transition-colors font-semibold"
+        >
+          contact@physiokbnyon.ch
+        </a>
+      </div>
+
+      <div class="bg-light-gray rounded-xl p-8 text-center">
+        <div class="w-14 h-14 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <MapPin size={24} class="text-white" />
+        </div>
+        <h3 class="text-lg font-bold text-medical-blue mb-2">Localisation</h3>
+        <p class="text-gray-600 font-semibold">Nyon, Suisse</p>
+      </div>
+    </div>
+
+    <div class="bg-light-gray rounded-xl p-8 md:p-12">
+      <div class="flex items-center mb-6">
+        <div class="w-12 h-12 bg-medical-blue rounded-lg flex items-center justify-center mr-4">
+          <Clock size={24} class="text-white" />
+        </div>
+        <h3 class="text-2xl font-bold text-medical-blue">Horaires d'Ouverture</h3>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h4 class="font-bold text-medical-blue mb-4">Semaine Normale</h4>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex justify-between"><span>Lundi</span><span class="font-semibold">09:00 - 18:00</span></li>
+            <li class="flex justify-between"><span>Mardi</span><span class="font-semibold">09:00 - 15:00</span></li>
+            <li class="flex justify-between"><span>Mercredi</span><span class="font-semibold">09:00 - 18:00</span></li>
+            <li class="flex justify-between"><span>Jeudi</span><span class="font-semibold">09:00 - 15:00</span></li>
+            <li class="flex justify-between"><span>Vendredi</span><span class="font-semibold">09:00 - 18:00</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-medical-blue mb-4">Week-end</h4>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex justify-between"><span>Samedi</span><span class="font-semibold text-red-600">Fermé</span></li>
+            <li class="flex justify-between"><span>Dimanche</span><span class="font-semibold text-red-600">Fermé</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-500 mt-6 italic">
+        * Les horaires peuvent être modifiés selon les jours fériés. Veuillez nous contacter pour plus d'informations.
+      </p>
+    </div>
+  </div>
+</section>
+

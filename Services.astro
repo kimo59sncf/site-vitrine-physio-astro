@@ -1,0 +1,82 @@
+---
+import { Heart, Zap, Trophy, Stethoscope, Waves, Brain } from 'lucide-react';
+
+const services = [
+  {
+    icon: Heart,
+    title: 'Rééducation Post-Opératoire',
+    description: 'Récupération complète après une intervention chirurgicale avec un suivi personnalisé.',
+  },
+  {
+    icon: Zap,
+    title: 'Thérapie Manuelle',
+    description: 'Techniques manuelles avancées pour soulager la douleur et restaurer la mobilité.',
+  },
+  {
+    icon: Trophy,
+    title: 'Performance Sportive',
+    description: 'Optimisation de votre performance et prévention des blessures sportives.',
+  },
+  {
+    icon: Stethoscope,
+    title: 'Réhabilitation Cardiaque',
+    description: 'Programme de réhabilitation pour une meilleure santé cardiovasculaire.',
+  },
+  {
+    icon: Waves,
+    title: 'Thérapie Aquatique',
+    description: 'Exercices en piscine pour une rééducation douce et efficace.',
+  },
+  {
+    icon: Brain,
+    title: 'Gestion de la Douleur',
+    description: 'Approche holistique pour gérer et réduire la douleur chronique.',
+  },
+];
+---
+
+<section id="services" class="py-20 md:py-32 bg-light-gray">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- En-tête de section -->
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-medical-blue mb-4">
+        Nos Services
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Découvrez nos services professionnels de physiothérapie adaptés à vos besoins spécifiques.
+      </p>
+    </div>
+
+    <!-- Grille de services -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {services.map((service) => {
+        const IconComponent = service.icon;
+        return (
+          <div class="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300">
+            <div class="mb-4">
+              <div class="w-14 h-14 bg-medical-blue rounded-lg flex items-center justify-center">
+                <IconComponent size={28} class="text-white" />
+              </div>
+            </div>
+            <h3 class="text-xl font-bold text-medical-blue mb-3">
+              {service.title}
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              {service.description}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Appel à l'action -->
+    <div class="mt-16 text-center">
+      <a
+        href="#booking"
+        class="inline-block bg-medical-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-medical-blue-dark transition-colors shadow-lg"
+      >
+        Réserver une Consultation
+      </a>
+    </div>
+  </div>
+</section>

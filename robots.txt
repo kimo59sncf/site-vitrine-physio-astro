@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+
+Sitemap: https://physiokbnyon.ch/sitemap.xml
+
+# Délai de crawl (en secondes)
+Crawl-delay: 1
+
+# Règles spécifiques pour Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Règles spécifiques pour Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

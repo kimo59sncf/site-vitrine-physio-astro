@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Stats from '../components/Stats.astro';
+import Services from '../components/Services.astro';
+import Testimonials from '../components/Testimonials.astro';
+import BookingForm from '../components/BookingForm';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+
+const seoProps = {
+  title: "Physiothérapeute et Kinésithérapeute à Nyon, Suisse",
+  description: "PhysioKbNyon : Votre cabinet de physiothérapie ultra-performant à Nyon. Spécialisé en rééducation, thérapie manuelle et performance sportive. Prenez rendez-vous en ligne.",
+  canonicalUrl: "https://physiokbnyon.ch", // À remplacer avec l'URL réelle
+  keywords: "physiothérapeute Nyon, kinésithérapeute Suisse, PhysioKbNyon, rééducation, thérapie manuelle, performance sportive",
+  image: "/images/social-share.webp",
+  isHomePage: true,
+};
+---
+
+<Layout seo={seoProps}>
+  <Header />
+  <main class="flex-grow">
+    <Hero />
+    <Services />
+    <About />
+    <Stats />
+    <Testimonials />
+    <BookingForm client:load />
+    <Contact />
+  </main>
+  <Footer />
+</Layout>

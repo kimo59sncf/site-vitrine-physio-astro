@@ -1,0 +1,83 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+  keywords?: string;
+  image?: string;
+  isHomePage?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonicalUrl,
+  keywords = "physiothérapeute Nyon, kinésithérapeute Suisse, PhysioKbNyon, rééducation, thérapie manuelle",
+  image = "/images/social-share.jpg",
+  isHomePage = false,
+} = Astro.props;
+
+const siteName = "PhysioKbNyon - Physiothérapeute à Nyon, Suisse";
+const fullTitle = isHomePage ? siteName : `${title} | ${siteName}`;
+
+// Schéma JSON-LD pour LocalBusiness (MedicalBusiness)
+const jsonLdSchema = {
+  "@context": "https://schema.org",
+  "@type": "MedicalBusiness",
+  "name": "PhysioKbNyon",
+  "url": canonicalUrl,
+  "logo": "URL_DU_LOGO", // À remplacer par l'URL du logo
+  "image": "URL_DE_L_IMAGE_PRINCIPALE", // À remplacer par l'URL de l'image principale
+  "description": description,
+  "telephone": ["+41782556061", "+41277444488"],
+  "email": "contact@physiokbnyon.ch",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Nyon",
+    "addressRegion": "Vaud",
+    "addressCountry": "CH",
+    "streetAddress": "Adresse à compléter", // Placeholder
+    "postalCode": "Code postal à compléter", // Placeholder
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Wednesday", "Friday"],
+      "opens": "09:00",
+      "closes": "18:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Tuesday", "Thursday"],
+      "opens": "09:00",
+      "closes": "15:00"
+    }
+  ],
+  "areaServed": {
+    "@type": "City",
+    "name": "Nyon"
+  }
+};
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords} />
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalUrl} />
+<meta property="twitter:title" content={fullTitle} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={image} />
+
+<!-- Schéma JSON-LD -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />

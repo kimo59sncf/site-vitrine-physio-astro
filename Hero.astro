@@ -1,0 +1,70 @@
+---
+import { ArrowRight, Phone, MessageCircle } from 'lucide-react';
+---
+
+<section class="bg-gradient-to-br from-medical-blue to-medical-blue-dark text-white py-20 md:py-32">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <!-- Contenu texte -->
+      <div class="space-y-6">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          Physiothérapeute à Nyon
+        </h1>
+        <p class="text-lg md:text-xl text-blue-100 leading-relaxed">
+          Bienvenue chez <strong>PhysioKbNyon</strong>, votre partenaire de confiance pour la rééducation, la thérapie manuelle et l'optimisation de votre performance sportive.
+        </p>
+        <p class="text-base md:text-lg text-blue-100">
+          Nous offrons des soins personnalisés et professionnels pour vous aider à retrouver votre mobilité et votre bien-être.
+        </p>
+
+        <!-- Boutons d'action -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <a
+            href="#booking"
+            class="inline-flex items-center justify-center bg-white text-medical-blue px-8 py-3 rounded-lg font-bold hover:bg-light-gray transition-colors shadow-lg"
+          >
+            Prendre RDV <ArrowRight size={20} class="ml-2" />
+          </a>
+          <a
+            href="tel:+41782556061"
+            class="inline-flex items-center justify-center bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-medical-blue transition-colors"
+          >
+            <Phone size={20} class="mr-2" /> Appeler
+          </a>
+        </div>
+      </div>
+
+      <!-- Image (placeholder) -->
+      <div class="hidden md:block">
+        <div class="bg-white bg-opacity-10 rounded-2xl p-8 backdrop-blur-sm">
+          <div class="aspect-square bg-gradient-to-br from-blue-300 to-blue-500 rounded-xl flex items-center justify-center">
+            <span class="text-white text-center">
+              <p class="text-2xl font-bold">Image Professionnelle</p>
+              <p class="text-sm mt-2">Cabinet de Physiothérapie</p>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-12 border-t border-blue-400">
+      <div class="text-center">
+        <p class="text-3xl font-bold">100+</p>
+        <p class="text-blue-100 mt-2">Patients Satisfaits</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold">15+</p>
+        <p class="text-blue-100 mt-2">Ans d'Expérience</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold">24/7</p>
+        <p class="text-blue-100 mt-2">Support Client</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold">5★</p>
+        <p class="text-blue-100 mt-2">Avis Clients</p>
+      </div>
+    </div>
+  </div>
+</section>

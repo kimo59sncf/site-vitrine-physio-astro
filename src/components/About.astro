@@ -1,0 +1,93 @@
+---
+import { Award, Users, Heart, Target } from 'lucide-react';
+---
+
+<section id="about" class="py-20 md:py-32 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-medical-blue mb-4">À Propos de PhysioKbNyon</h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Découvrez notre cabinet de physiothérapie et notre approche personnalisée pour votre santé et votre bien-être.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-16 items-center mb-20">
+      <div class="space-y-6">
+        <h3 class="text-3xl font-bold text-medical-blue mb-4">Votre Santé, Notre Priorité</h3>
+        <p class="text-gray-600 leading-relaxed">
+          PhysioKbNyon s'engage à offrir des soins de physiothérapie de qualité supérieure à Nyon
+          et ses environs. Notre cabinet est spécialisé dans la rééducation, la thérapie manuelle et l'optimisation de la
+          performance sportive avec une approche moderne et innovante.
+        </p>
+        <p class="text-gray-600 leading-relaxed">
+          Nous croyons en une approche holistique, combinant les dernières techniques médicales avec une écoute attentive
+          de vos besoins individuels. Chaque patient reçoit un plan de traitement personnalisé pour atteindre ses
+          objectifs de santé.
+        </p>
+        <p class="text-gray-600 leading-relaxed">
+          Notre équipe qualifiée est formée aux méthodes les plus récentes et utilise un équipement moderne pour garantir
+          des résultats optimaux dans un environnement confortable et professionnel.
+        </p>
+      </div>
+
+      <div class="bg-gradient-to-br from-medical-blue to-medical-blue-dark rounded-2xl p-8 text-white">
+        <img
+          src="/images/equipe.webp"
+          alt="Équipe Qualifiée PhysioKbNyon"
+          class="w-full h-auto rounded-xl"
+        />
+        <div class="text-center mt-4">
+          <h4 class="text-2xl font-bold mb-2">Équipe Qualifiée</h4>
+          <p class="text-blue-100">Équipe formée aux méthodes les plus récentes</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Heart size={32} class="text-white" />
+        </div>
+        <h4 class="text-xl font-bold text-medical-blue mb-2">Empathie</h4>
+        <p class="text-gray-600 text-sm">
+          Nous écoutons vos préoccupations et adaptons nos soins à vos besoins émotionnels et physiques.
+        </p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Target size={32} class="text-white" />
+        </div>
+        <h4 class="text-xl font-bold text-medical-blue mb-2">Précision</h4>
+        <p class="text-gray-600 text-sm">Des diagnostics précis et des traitements ciblés pour des résultats durables.</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Award size={32} class="text-white" />
+        </div>
+        <h4 class="text-xl font-bold text-medical-blue mb-2">Excellence</h4>
+        <p class="text-gray-600 text-sm">
+          Formation continue et utilisation des techniques les plus avancées en physiothérapie.
+        </p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 bg-medical-blue rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Users size={32} class="text-white" />
+        </div>
+        <h4 class="text-xl font-bold text-medical-blue mb-2">Accompagnement</h4>
+        <p class="text-gray-600 text-sm">Un suivi personnalisé tout au long de votre parcours de rééducation.</p>
+      </div>
+    </div>
+
+    <div class="text-center mt-16">
+      <a
+        href="#booking"
+        class="inline-block bg-medical-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-medical-blue-dark transition-colors shadow-lg"
+      >
+        Commencer Votre Rééducation
+      </a>
+    </div>
+  </div>
+</section>

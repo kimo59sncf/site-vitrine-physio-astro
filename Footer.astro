@@ -1,0 +1,82 @@
+---
+import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+---
+
+<footer class="bg-dark-gray text-white py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-12 mb-12">
+      <!-- À propos -->
+      <div>
+        <h3 class="text-xl font-bold mb-4">PhysioKbNyon</h3>
+        <p class="text-gray-300 text-sm leading-relaxed">
+          Cabinet de physiothérapie professionnel à Nyon, spécialisé en rééducation, thérapie manuelle et performance sportive.
+        </p>
+      </div>
+
+      <!-- Services rapides -->
+      <div>
+        <h4 class="text-lg font-bold mb-4">Services</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Rééducation</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Thérapie Manuelle</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Performance Sportive</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Gestion de la Douleur</a></li>
+        </ul>
+      </div>
+
+      <!-- Liens rapides -->
+      <div>
+        <h4 class="text-lg font-bold mb-4">Liens</h4>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="/" class="hover:text-medical-blue transition-colors">Accueil</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Services</a></li>
+          <li><a href="#booking" class="hover:text-medical-blue transition-colors">Réserver</a></li>
+          <li><a href="#contact" class="hover:text-medical-blue transition-colors">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-lg font-bold mb-4">Contact</h4>
+        <ul class="space-y-3 text-sm text-gray-300">
+          <li class="flex items-center space-x-2">
+            <Phone size={16} class="text-medical-blue" />
+            <a href="tel:+41782556061" class="hover:text-medical-blue transition-colors">078 255 60 61</a>
+          </li>
+          <li class="flex items-center space-x-2">
+            <Phone size={16} class="text-medical-blue" />
+            <a href="tel:+41277444488" class="hover:text-medical-blue transition-colors">027 744 44 88</a>
+          </li>
+          <li class="flex items-center space-x-2">
+            <Mail size={16} class="text-medical-blue" />
+            <a href="mailto:contact@physiokbnyon.ch" class="hover:text-medical-blue transition-colors">contact@physiokbnyon.ch</a>
+          </li>
+          <li class="flex items-start space-x-2">
+            <MapPin size={16} class="text-medical-blue mt-1 flex-shrink-0" />
+            <span>Nyon, Suisse</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+      <div class="flex space-x-6 mb-6 md:mb-0">
+        <a href="#" class="text-gray-300 hover:text-medical-blue transition-colors">
+          <Facebook size={20} />
+        </a>
+        <a href="#" class="text-gray-300 hover:text-medical-blue transition-colors">
+          <Instagram size={20} />
+        </a>
+        <a href="#" class="text-gray-300 hover:text-medical-blue transition-colors">
+          <Linkedin size={20} />
+        </a>
+      </div>
+
+      <!-- Copyright -->
+      <p class="text-sm text-gray-400 text-center md:text-right">
+        &copy; 2024 PhysioKbNyon. Tous droits réservés. | <a href="#" class="hover:text-medical-blue transition-colors">Politique de Confidentialité</a>
+      </p>
+    </div>
+  </div>
+</footer>

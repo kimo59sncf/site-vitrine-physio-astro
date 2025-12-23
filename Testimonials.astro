@@ -1,0 +1,113 @@
+---
+import { Star, Quote } from 'lucide-react';
+
+const testimonials = [
+  {
+    name: 'Marie Dubois',
+    role: 'Athlète professionnelle',
+    content: 'Grâce aux soins de PhysioKbNyon, j\'ai pu reprendre ma carrière sportive après une blessure grave. Leur approche professionnelle et leur suivi personnalisé ont été déterminants.',
+    rating: 5,
+    image: '/images/testimonial-1.jpg', // Placeholder
+  },
+  {
+    name: 'Pierre Martin',
+    role: 'Patient après opération',
+    content: 'Excellente prise en charge post-opératoire. L\'équipe est très compétente et attentive. Je recommande vivement ce cabinet pour toute rééducation.',
+    rating: 5,
+    image: '/images/testimonial-2.jpg', // Placeholder
+  },
+  {
+    name: 'Sophie Laurent',
+    role: 'Mère de famille',
+    content: 'Cabinet très professionnel avec des horaires adaptés. Les thérapies manuelles ont considérablement soulagé mes douleurs chroniques.',
+    rating: 5,
+    image: '/images/testimonial-3.jpg', // Placeholder
+  },
+];
+---
+
+<section class="py-20 md:py-32 bg-light-gray">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- En-tête de section -->
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-medical-blue mb-4">
+        Témoignages Clients
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Découvrez ce que nos patients disent de leur expérience avec PhysioKbNyon.
+      </p>
+    </div>
+
+    <!-- Grille de témoignages -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {testimonials.map((testimonial, index) => (
+        <div class="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300">
+          <!-- Citation -->
+          <div class="mb-6">
+            <Quote size={32} class="text-medical-blue mb-4" />
+            <p class="text-gray-600 italic leading-relaxed">
+              "{testimonial.content}"
+            </p>
+          </div>
+
+          <!-- Étoiles -->
+          <div class="flex mb-4">
+            {[...Array(testimonial.rating)].map((_, i) => (
+              <Star key={i} size={20} class="text-yellow-400 fill-current" />
+            ))}
+          </div>
+
+          <!-- Informations client -->
+          <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-medical-blue to-medical-blue-dark rounded-full flex items-center justify-center mr-4">
+              <span class="text-white font-bold text-lg">
+                {testimonial.name.charAt(0)}
+              </span>
+            </div>
+            <div>
+              <h4 class="font-bold text-medical-blue">
+                {testimonial.name}
+              </h4>
+              <p class="text-sm text-gray-600">
+                {testimonial.role}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-12 border-t border-gray-300">
+      <div class="text-center">
+        <p class="text-3xl font-bold text-medical-blue">500+</p>
+        <p class="text-gray-600 mt-2">Patients Satisfaits</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-medical-blue">98%</p>
+        <p class="text-gray-600 mt-2">Taux de Satisfaction</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-medical-blue">4.9/5</p>
+        <p class="text-gray-600 mt-2">Note Moyenne</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold text-medical-blue">15+</p>
+        <p class="text-gray-600 mt-2">Années d'Expérience</p>
+      </div>
+    </div>
+
+    <!-- Appel à l'action -->
+    <div class="text-center mt-16">
+      <p class="text-lg text-gray-600 mb-6">
+        Rejoignez nos patients satisfaits et prenez rendez-vous dès aujourd'hui.
+      </p>
+      <a
+        href="#booking"
+        class="inline-block bg-medical-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-medical-blue-dark transition-colors shadow-lg"
+      >
+        Réserver une Consultation
+      </a>
+    </div>
+  </div>
+</section>

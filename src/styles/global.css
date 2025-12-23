@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Prévention du scroll automatique vers le haut */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Hauteur du header sticky */
+}
+
+/* Désactiver la restauration automatique du scroll */
+html {
+  scroll-restoration: manual;
+}
+
+/* Prévention du focus automatique sur les éléments */
+*:focus {
+  scroll-behavior: smooth;
+}
+
+/* Gestion du scroll pour les transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+}
+
+/* Animation pour les services */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+}
+
+/* Améliorations pour mobile */
+@media (max-width: 768px) {
+  .animate-fade-in-up {
+    animation-duration: 0.4s; /* Animations plus rapides sur mobile */
+  }
+
+  /* Ajustements pour le diaporama mobile */
+  section.relative.min-h-\[70vh\] {
+    min-height: 60vh;
+  }
+
+  /* Texte plus petit sur mobile pour le hero */
+  .animate-fade-in-up h2 {
+    font-size: 1.875rem; /* text-3xl */
+    line-height: 2.25rem;
+  }
+
+  .animate-fade-in-up h3 {
+    font-size: 1.25rem; /* text-xl */
+    line-height: 1.75rem;
+  }
+
+  .animate-fade-in-up p {
+    font-size: 1rem; /* text-lg */
+    line-height: 1.5rem;
+  }
+}
+
+/* Optimisations pour les animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  [style*="animation"] {
+    animation: none !important;
+  }
+}

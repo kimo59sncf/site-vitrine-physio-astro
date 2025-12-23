@@ -1,0 +1,100 @@
+---
+import { Heart, Zap, Trophy, Stethoscope, Waves, Brain } from 'lucide-react';
+
+const services = [
+  {
+    icon: Heart,
+    image: '/images/cabinet-interieur.webp',
+    title: 'Physiothérapie',
+    description: 'Rééducation, douleurs de dos, articulaires et musculaires, suites post‑opératoires, incontinence, vertiges, acouphènes, stress, etc.',
+  },
+  {
+    icon: Zap,
+    image: '/images/physiotherapie-specialisee.webp',
+    title: 'Physiothérapie Spécialisée',
+    description: 'Intégrant différentes approches et méthodes avancées selon la pathologie.',
+  },
+  {
+    icon: Trophy,
+    image: '/images/chiropractie.webp',
+    title: 'Chiropractie',
+    description: 'Soins chiropratiques pour les troubles musculo‑squelettiques et rachidiens.',
+  },
+  {
+    icon: Waves,
+    image: '/images/massotherapie.webp',
+    title: 'Massothérapie',
+    description: 'Massages thérapeutiques pour douleurs, tension musculaire, récupération, gestion du stress.',
+  },
+  {
+    icon: Stethoscope,
+    image: '/images/blessures-sportives.webp',
+    title: 'Traitement des Blessures Sportives',
+    description: 'Prévention, prise en charge et rééducation après blessure liée au sport.',
+  },
+  {
+    icon: Brain,
+    image: '/images/accidents-travail.webp',
+    title: 'Traitement des Accidents du Travail',
+    description: 'Rééducation et suivi après blessures professionnelles.',
+  },
+  {
+    icon: Heart,
+    image: '/images/cabinet-principal.webp',
+    title: 'Soins sur Place au Cabinet',
+    description: 'Soins et traitements sur place au cabinet, avec équipements de dernière génération.',
+  },
+  {
+    icon: Zap,
+    image: '/images/services-domicile.webp',
+    title: 'Services à Domicile',
+    description: 'Physiothérapie à domicile pour une prise en charge personnalisée.',
+  },
+];
+---
+
+<section id="services" class="py-12 md:py-20 bg-light-gray">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-medical-blue mb-4">Nos Services</h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Découvrez nos services professionnels de physiothérapie adaptés à vos besoins spécifiques.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {services.map((service, index) => {
+        const IconComponent = service.icon;
+        return (
+          <div class={`bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-500 animate-fade-in-up opacity-0`} style={`animation-delay: ${index * 100}ms; animation-fill-mode: forwards;`}>
+            <div class="text-center mb-4">
+              <div class="relative mb-4">
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  class="w-full h-32 object-cover rounded-lg"
+                />
+                <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-medical-blue rounded-full flex items-center justify-center shadow-lg">
+                  <IconComponent size={24} class="text-white" />
+                </div>
+              </div>
+            </div>
+            <div class="pt-4">
+              <h3 class="text-lg font-bold text-medical-blue mb-2 text-center">{service.title}</h3>
+              <p class="text-gray-600 leading-relaxed text-center text-sm">{service.description}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <div class="mt-16 text-center">
+      <a
+        href="#booking"
+        class="inline-block bg-medical-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-medical-blue-dark transition-colors shadow-lg"
+      >
+        Réserver une Consultation
+      </a>
+    </div>
+  </div>
+</section>

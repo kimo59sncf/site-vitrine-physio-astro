@@ -1,0 +1,81 @@
+import React, { useState } from 'react';
+import { MessageCircle, X } from 'lucide-react';
+
+interface WhatsAppButtonProps {
+  phoneNumber?: string;
+  message?: string;
+}
+
+const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
+  phoneNumber = '41782556061', // Numéro principal du cabinet (sans +)
+  message = 'Bonjour, je souhaite prendre rendez-vous pour une séance de physiothérapie.',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Créer l'URL WhatsApp
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleWhatsAppClick = () => {
+    window.open(whatsappUrl, '_blank');
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      {/* Bouton flottant WhatsApp */}
+      <div className="fixed bottom-6 right-6 z-40">
+        {/* Menu d'options (optionnel) */}
+        {isOpen && (
+          <div className="absolute bottom-20 right-0 bg-white rounded-lg shadow-2xl p-4 w-64 mb-4 animate-fadeIn">
+            <h3 className="font-bold text-gray-800 mb-3">Prendre Rendez-vous</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Cliquez ci-dessous pour nous contacter via WhatsApp.
+            </p>
+            <button
+              onClick={handleWhatsAppClick}
+              className="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center"
+            >
+              <MessageCircle size={18} className="mr-2" />
+              Ouvrir WhatsApp
+            </button>
+          </div>
+        )}
+
+        {/* Bouton principal */}
+        <button
+          onClick={toggleMenu}
+          className="bg-green-500 text-white rounded-full p-4 shadow-2xl hover:bg-green-600 transition-all duration-300 transform hover:scale-110 flex items-center justify-center"
+          title="Contacter via WhatsApp"
+          aria-label="Bouton WhatsApp"
+        >
+          {isOpen ? (
+            <X size={28} />
+          ) : (
+            <MessageCircle size={28} />
+          )}
+        </button>
+
+        {/* Badge de notification */}
+        {!isOpen && (
+          <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold animate-pulse">
+            !
+          </div>
+        )}
+      </div>
+
+      {/* Overlay optionnel */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default WhatsAppButton;

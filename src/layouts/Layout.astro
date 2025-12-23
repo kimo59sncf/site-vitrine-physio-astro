@@ -1,0 +1,55 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+import SEO, { type Props as SEOProps } from '../components/SEO.astro';
+import WhatsAppButton from '../components/WhatsAppButton';
+import '../styles/global.css';
+
+export interface Props {
+  seo: SEOProps;
+}
+
+const { seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <ViewTransitions />
+
+    <SEO {...seo} />
+  </head>
+  <body class="min-h-screen flex flex-col text-gray-800 bg-white">
+    <slot />
+
+    <WhatsAppButton
+      client:load
+      phoneNumber="41782556061"
+      message="Bonjour, je souhaite prendre rendez-vous pour une séance de physiothérapie."
+    />
+  </body>
+</html>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  :global(.animate-fadeIn) {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import { Menu } from 'lucide-react';
+---
+
+<header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <div class="flex items-center">
+      <a href="/" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+        <img src="/images/logoPhysio.webp" alt="PhysioKbNyon Logo" class="w-10 h-10 rounded-lg" />
+        <span class="inline text-xl font-bold text-medical-blue">PhysioKbNyon</span>
+      </a>
+    </div>
+
+    <ul class="hidden md:flex space-x-8 items-center">
+      <li><a href="#services" class="text-gray-700 hover:text-medical-blue transition-colors font-medium">Services</a></li>
+      <li><a href="#about" class="text-gray-700 hover:text-medical-blue transition-colors font-medium">À Propos</a></li>
+      <li><a href="#contact" class="text-gray-700 hover:text-medical-blue transition-colors font-medium">Contact</a></li>
+      <li>
+        <a href="#booking" class="bg-medical-blue text-white px-6 py-2 rounded-lg hover:bg-medical-blue-dark transition-colors font-medium">
+          Prendre RDV
+        </a>
+      </li>
+    </ul>
+
+    <button class="md:hidden text-gray-700 hover:text-medical-blue transition-colors" id="mobile-menu-btn">
+      <Menu size={24} />
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+    <ul class="flex flex-col space-y-4 px-4 py-4">
+      <li><a href="#services" class="text-gray-700 hover:text-medical-blue transition-colors font-medium block">Services</a></li>
+      <li><a href="#about" class="text-gray-700 hover:text-medical-blue transition-colors font-medium block">À Propos</a></li>
+      <li><a href="#contact" class="text-gray-700 hover:text-medical-blue transition-colors font-medium block">Contact</a></li>
+      <li>
+        <a href="#booking" class="bg-medical-blue text-white px-6 py-2 rounded-lg hover:bg-medical-blue-dark transition-colors font-medium block text-center">
+          Prendre RDV
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    const links = mobileMenu.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+  }
+</script>

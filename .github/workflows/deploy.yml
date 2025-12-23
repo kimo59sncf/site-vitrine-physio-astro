@@ -1,0 +1,30 @@
+name: Deploy Astro Site to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 83.228.219.249
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/ubuntu/app || mkdir /home/ubuntu/app && cd /home/ubuntu/app
+            git pull origin main || git clone https://github.com/kimo59sncf/site-vitrine-physio-astro.git .  
+            npm install
+            npm run build
+            sudo rm -rf /var/www/html/*
+            sudo cp -r dist/* /var/www/html/
+            sudo chown -R www-data:www-data /var/www/html
+            sudo systemctl reload nginx
