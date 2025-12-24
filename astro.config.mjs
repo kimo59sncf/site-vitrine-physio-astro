@@ -10,7 +10,7 @@ export default defineConfig({
     config: "./tailwind.config.mjs"
   }), react()],
 //   adapter: node({ mode: 'standalone' }),
-  site: 'https://physiokbnyon.ch', // À remplacer avec l'URL réelle
+  site: 'https://kimo59sncf.github.io',
     base: '/site-vitrine-physio-astro',
   // Configuration pour le déploiement (nécessaire pour les API endpoints)
   output: 'static',
