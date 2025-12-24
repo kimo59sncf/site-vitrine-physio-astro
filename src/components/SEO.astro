@@ -21,43 +21,96 @@ const {
 const siteName = "PhysioKbNyon - Physiothérapeute à Nyon, Suisse";
 const fullTitle = isHomePage ? siteName : `${title} | ${siteName}`;
 
-const jsonLdSchema = {
-  "@context": "https://schema.org",
-  "@type": "MedicalBusiness",
-  name: "PhysioKbNyon",
-  url: canonicalUrl,
-  logo: "URL_DU_LOGO",
-  image: "URL_DE_L_IMAGE_PRINCIPALE",
-  description,
-  telephone: ["+41782556061", "+41277444488"],
-  email: "contact@physiokbnyon.ch",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Nyon",
-    addressRegion: "Vaud",
-    addressCountry: "CH",
-    streetAddress: "Adresse à compléter",
-    postalCode: "Code postal à compléter",
-  },
-  openingHoursSpecification: [
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Wednesday", "Friday"],
-      opens: "09:00",
-      closes: "18:00",
+const jsonLdSchemas = [
+  // MedicalBusiness schema (principal)
+  {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    name: "PhysioKbNyon",
+    url: canonicalUrl,
+    logo: canonicalUrl + "/images/logoPhysio.webp",
+    image: canonicalUrl + "/images/social-share.webp",
+    description,
+    telephone: ["+41782556061", "+41277444488"],
+    email: "contact@physiokbnyon.ch",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Nyon",
+      addressRegion: "Vaud",
+      addressCountry: "CH",
+      streetAddress: "8 Rue Morache",
+      postalCode: "1260",
     },
-    {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Tuesday", "Thursday"],
-      opens: "09:00",
-      closes: "15:00",
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Wednesday", "Friday"],
+        opens: "09:00",
+        closes: "18:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Tuesday", "Thursday"],
+        opens: "09:00",
+        closes: "15:00",
+      },
+    ],
+    areaServed: {
+      "@type": "City",
+      name: "Nyon",
     },
-  ],
-  areaServed: {
-    "@type": "City",
-    name: "Nyon",
+    medicalSpecialty: ["Physiotherapy", "Physical Therapy", "Rehabilitation"],
+    availableService: [
+      {
+        "@type": "MedicalProcedure",
+        name: "Rééducation fonctionnelle",
+        description: "Programme de rééducation personnalisé pour retrouver votre mobilité"
+      },
+      {
+        "@type": "MedicalProcedure",
+        name: "Thérapie manuelle",
+        description: "Techniques de massage et manipulation pour soulager les douleurs"
+      },
+      {
+        "@type": "MedicalProcedure",
+        name: "Massage médical",
+        description: "Massages thérapeutiques pour la récupération musculaire"
+      }
+    ]
   },
-};
+
+  // Organization schema (complémentaire)
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "PhysioKbNyon",
+    url: canonicalUrl,
+    logo: canonicalUrl + "/images/logoPhysio.webp",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+41782556061",
+      contactType: "customer service",
+      availableLanguage: "French"
+    },
+    sameAs: [
+      // Ajouter les liens vers vos réseaux sociaux si vous en avez
+    ]
+  },
+
+  // BreadcrumbList schema pour la navigation
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Accueil",
+        item: canonicalUrl
+      }
+    ]
+  }
+];
 ---
 
 <title>{fullTitle}</title>
@@ -77,4 +130,6 @@ const jsonLdSchema = {
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={image} />
 
-<script type="application/ld+json" set:html={JSON.stringify(jsonLdSchema)} />
+{jsonLdSchemas.map(schema => (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}

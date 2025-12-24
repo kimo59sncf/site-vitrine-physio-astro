@@ -1,0 +1,138 @@
+---
+// Google Maps Component for Physiothérapie K Bnyon
+interface Props {
+  address?: string;
+  zoom?: number;
+}
+
+const { address = "8 Rue Morache, Nyon, Switzerland", zoom = 15 } = Astro.props;
+
+// Google Maps API Key from environment
+const apiKey = import.meta.env.GOOGLE_MAPS_API_KEY;
+
+// Coordinates for 8 Rue Morache, Nyon (approximate)
+const lat = 46.3833;
+const lng = 6.2394;
+---
+
+<div class="map-container w-full h-96 md:h-[500px] rounded-2xl overflow-hidden shadow-lg mb-8">
+  <div id="map" class="w-full h-full"></div>
+  <div class="absolute bottom-4 left-4 z-10">
+    <a
+      href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center px-4 py-2 bg-medical-blue hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl transform hover:scale-105"
+    >
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+      </svg>
+      Itinéraire GPS
+    </a>
+  </div>
+</div>
+
+<script define:vars={{ apiKey, lat, lng, zoom, address }}>
+  import { Loader } from '@googlemaps/js-api-loader';
+
+  const loader = new Loader({
+    apiKey: apiKey || 'DEMO_KEY',
+    version: 'weekly',
+    libraries: ['places']
+  });
+
+  const mapElement = document.getElementById('map');
+
+  if (mapElement && apiKey && apiKey !== 'your_api_key_here') {
+    loader.load().then(() => {
+      const map = new google.maps.Map(mapElement, {
+        center: { lat, lng },
+        zoom,
+        styles: [
+          {
+            featureType: 'poi',
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }]
+          }
+        ],
+        disableDefaultUI: false,
+        zoomControl: true,
+        mapTypeControl: false,
+        scaleControl: false,
+        streetViewControl: false,
+        rotateControl: false,
+        fullscreenControl: true
+      });
+
+      // Add marker
+      const marker = new google.maps.Marker({
+        position: { lat, lng },
+        map,
+        title: 'Physiothérapie K Bnyon',
+        animation: google.maps.Animation.DROP
+      });
+
+      // Add info window
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="font-family: system-ui, sans-serif; max-width: 200px;">
+            <h3 style="margin: 0 0 8px 0; color: #1e40af; font-weight: bold;">Physiothérapie K Bnyon</h3>
+            <p style="margin: 0; color: #374151;">${address}</p>
+          </div>
+        `
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+    }).catch(error => {
+      console.error('Error loading Google Maps:', error);
+      mapElement.innerHTML = `
+        <div class="flex items-center justify-center h-full bg-gray-100 text-gray-500">
+          <div class="text-center">
+            <svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+            <p>Carte non disponible</p>
+            <p class="text-sm mt-1">Vérifiez votre connexion internet</p>
+          </div>
+        </div>
+      `;
+    });
+  } else {
+    // Fallback for demo or missing API key
+    mapElement.innerHTML = `
+      <div class="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-blue-100">
+        <div class="text-center p-6">
+          <svg class="w-16 h-16 mx-auto mb-4 text-medical-blue opacity-75" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+          </svg>
+          <h3 class="text-lg font-semibold text-medical-blue mb-2">Notre Localisation</h3>
+          <p class="text-gray-600 mb-4">${address}</p>
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-4 py-2 bg-medical-blue hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl"
+          >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+            Voir sur Google Maps
+          </a>
+        </div>
+      </div>
+    `;
+  }
+</script>
+
+<style>
+  .map-container {
+    position: relative;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import Map from './Map.astro';
 ---
 
 <section id="contact" class="py-20 md:py-32 bg-white">
@@ -54,7 +55,12 @@ import { Phone, Mail, MapPin, Clock } from 'lucide-react';
       </div>
     </div>
 
-    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 md:p-12 shadow-lg animate-fade-in-up" style="animation-delay: 1s; animation-fill-mode: both;">
+    <!-- Interactive Map Section -->
+    <div class="mb-12 animate-fade-in-up" style="animation-delay: 1s; animation-fill-mode: both;">
+      <Map />
+    </div>
+
+    <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-8 md:p-12 shadow-lg animate-fade-in-up" style="animation-delay: 1.2s; animation-fill-mode: both;">
       <div class="flex items-center mb-6">
         <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg transform hover:scale-110 transition-transform duration-300">
           <Clock size={28} class="text-white" />

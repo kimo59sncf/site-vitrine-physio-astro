@@ -147,6 +147,50 @@ env: {
 }
 ```
 
+## Configuration Google Maps
+
+Le site inclut maintenant une carte Google Maps interactive. Pour activer cette fonctionnalité :
+
+### 1. Obtenir une clé API Google Maps
+
+1. Allez sur [Google Cloud Console](https://console.developers.google.com/)
+2. Créez un nouveau projet ou sélectionnez un projet existant
+3. Activez les APIs suivantes :
+   - **Maps JavaScript API**
+   - **Places API** (optionnel, pour la recherche de lieux)
+4. Créez des credentials (clé API)
+5. Restreignez la clé API pour plus de sécurité :
+   - **Application restrictions** : HTTP referrers
+   - Ajoutez vos domaines : `https://physiokbnyon.ch/*`, `https://www.physiokbnyon.ch/*`
+   - **API restrictions** : Maps JavaScript API et Places API
+
+### 2. Configurer la clé API
+
+1. Sur votre VPS, créez ou modifiez le fichier `.env` dans le répertoire du projet :
+
+```bash
+nano ~/physio-site/.env
+```
+
+2. Ajoutez votre clé API :
+
+```env
+# Google Maps API Key
+GOOGLE_MAPS_API_KEY=votre_clé_api_ici
+```
+
+3. Redémarrez l'application :
+
+```bash
+pm2 restart physio-site
+```
+
+### 3. Vérification
+
+- La carte interactive devrait maintenant s'afficher dans la section contact
+- Le bouton "Itinéraire GPS" ouvrira Google Maps avec les directions
+- En cas d'erreur API, une version de secours s'affichera avec un lien vers Google Maps
+
 ## Dépannage
 
 - **Port déjà utilisé** : Vérifiez si un autre service utilise le port 3000
