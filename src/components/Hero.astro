@@ -4,31 +4,31 @@ const base = import.meta.env.BASE_URL;
 
 const slides = [
   {
-    image: '/site-vitrine-physio-astro/images/cabinet-principal.webp',
+    image: base + 'images/cabinet-principal.webp',
     title: 'Cabinet de Physiothérapie à Nyon',
     subtitle: 'Excellence et soin personnalisé avec les méthodes les plus modernes',
     description: 'Notre équipe qualifiée vous accompagne dans votre rééducation avec des méthodes modernes et éprouvées.'
   },
   {
-    image: '/site-vitrine-physio-astro/images/equipements.webp',
+    image: base + 'images/equipements.webp',
     title: 'Équipements de Dernière Génération',
     subtitle: 'Technologie au service de votre santé',
     description: 'Bénéficiez d\'installations modernes et d\'équipements spécialisés pour une récupération optimale.'
   },
   {
-    image: '/site-vitrine-physio-astro/images/personnalisés.webp',
+    image: base + 'images/personnalisés.webp',
     title: 'Soins Personnalisés',
     subtitle: 'Une approche adaptée à chacun',
     description: 'Chaque patient est unique. Nos thérapeutes élaborent des programmes sur mesure pour vos besoins spécifiques.'
   },
   {
-    image: '/site-vitrine-physio-astro/images/accompagnement.webp',
+    image: base + 'images/accompagnement.webp',
     title: 'Suivi et Accompagnement',
     subtitle: 'Votre santé, notre priorité',
     description: 'Un suivi régulier et des conseils personnalisés pour maintenir votre bien-être au quotidien.'
   },
   {
-    image: '/site-vitrine-physio-astro/images/equipe.webp',
+    image: base + 'images/equipe.webp',
     title: 'Expertise et Professionnalisme',
     subtitle: 'Une équipe dédiée à votre rétablissement',
     description: 'Notre cabinet regroupe des professionnels passionnés, formés aux dernières techniques de physiothérapie.'
@@ -69,15 +69,7 @@ const slides = [
       ))}
     </div>
 
-    <!-- Indicateurs de slide -->
-    <div class="absolute bottom-24 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
-      {slides.map((_, index) => (
-        <button
-          class={`w-4 h-4 rounded-full transition-all duration-300 ${index === 0 ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'}`}
-          onclick={`showSlide(${index})`}
-        ></button>
-      ))}
-    </div>
+
 
     <!-- Flèches de navigation -->
     <button
@@ -98,86 +90,3 @@ const slides = [
     </button>
   </div>
 </section>
-
-<script>
-  let currentSlide = 0;
-  let slideInterval;
-  const slideshow = document.getElementById('hero-slideshow');
-  const dots = document.querySelectorAll('[onclick^="showSlide"]');
-
-  function showSlide(index) {
-    currentSlide = index;
-    slideshow.style.transform = `translateX(-${index * 100}%)`;
-
-    // Update dots
-    dots.forEach((dot, i) => {
-      if (i === index) {
-        dot.classList.remove('bg-white', 'bg-opacity-50', 'hover:bg-opacity-75');
-        dot.classList.add('bg-medical-blue', 'scale-125');
-      } else {
-        dot.classList.remove('bg-medical-blue', 'scale-125');
-        dot.classList.add('bg-white', 'bg-opacity-50', 'hover:bg-opacity-75');
-      }
-    });
-
-    // Reset animations for hero text elements only
-    const heroTextElements = document.querySelectorAll('section.relative .animate-fade-in-up');
-    heroTextElements.forEach(el => {
-      el.style.animation = 'none';
-      el.offsetHeight; // Trigger reflow
-      el.style.animation = '';
-    });
-  }
-
-  function nextSlide() {
-    currentSlide = (currentSlide + 1) % dots.length;
-    showSlide(currentSlide);
-  }
-
-  function prevSlide() {
-    currentSlide = (currentSlide - 1 + dots.length) % dots.length;
-    showSlide(currentSlide);
-  }
-
-  function startSlideshow() {
-    slideInterval = setInterval(nextSlide, 6000); // Change slide every 6 seconds
-  }
-
-  function stopSlideshow() {
-    clearInterval(slideInterval);
-  }
-
-  // Start slideshow
-  startSlideshow();
-
-  // Pause on hover for better UX
-  const heroSection = document.querySelector('section.relative.h-screen');
-  if (heroSection) {
-    heroSection.addEventListener('mouseenter', stopSlideshow);
-    heroSection.addEventListener('mouseleave', startSlideshow);
-
-    // Touch support for mobile
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    heroSection.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-      stopSlideshow();
-    });
-
-    heroSection.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      const diff = touchStartX - touchEndX;
-
-      if (Math.abs(diff) > 50) { // Minimum swipe distance
-        if (diff > 0) {
-          nextSlide(); // Swipe left
-        } else {
-          prevSlide(); // Swipe right
-        }
-      }
-
-      startSlideshow();
-    });
-  }
-</script>
