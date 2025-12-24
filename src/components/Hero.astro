@@ -4,9 +4,9 @@ const base = import.meta.env.BASE_URL;
 const slides = [
   {
     image: base + '/images/cabinet-principal.webp',
-    title: 'Cabinet de Physiothérapie à Nyon',
-    subtitle: 'Excellence et soin personnalisé avec les méthodes les plus modernes',
-    description: 'Notre équipe qualifiée vous accompagne dans votre rééducation avec des méthodes modernes et éprouvées.'
+    title: 'PhysioKB',
+    subtitle: 'Prenez soin de votre corps, durablement.',
+    description: 'Situé au cœur de Nyon, notre cabinet de physiothérapie vous accueille dans un environnement chaleureux et moderne.'
   },
   {
     image: base + '/images/equipements.webp',
@@ -120,17 +120,11 @@ const slides = [
   }
 
   // Démarrer le slideshow automatique au chargement
-  document.addEventListener('DOMContentLoaded', () => {
-    startAutoSlide();
-  });
+  startAutoSlide();
 
   // Arrêter le slideshow automatique au survol des boutons
   document.querySelectorAll('button[onclick]').forEach(button => {
     button.addEventListener('mouseenter', stopAutoSlide);
     button.addEventListener('mouseleave', startAutoSlide);
   });
-
-  // Arrêter le slideshow automatique au survol du slideshow
-  document.getElementById('hero-slideshow').addEventListener('mouseenter', stopAutoSlide);
-  document.getElementById('hero-slideshow').addEventListener('mouseleave', startAutoSlide);
 </script>

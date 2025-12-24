@@ -49,13 +49,21 @@ const base = import.meta.env.BASE_URL;
   const navLinks = header.querySelectorAll('nav a:not(.bg-medical-blue)');
   const navButton = header.querySelector('nav button');
 
-  // Handle scroll to add border and shadow when scrolled past hero
+  // Handle scroll to change background and add border/shadow
   window.addEventListener('scroll', () => {
     const heroHeight = window.innerHeight;
-    if (window.scrollY >= heroHeight) { // Add border and shadow when scrolled to the second section (Services)
-      header.classList.add('border-b', 'border-medical-blue-dark', 'shadow-sm');
+    if (window.scrollY >= heroHeight) {
+      // Past hero: opaque background with border and shadow
+      header.classList.remove('bg-transparent');
+      header.classList.add('bg-medical-blue', 'border-b', 'border-medical-blue-dark', 'shadow-sm');
+    } else if (window.scrollY > 0) {
+      // Scrolling over hero: transparent background
+      header.classList.remove('bg-medical-blue', 'border-b', 'border-medical-blue-dark', 'shadow-sm');
+      header.classList.add('bg-transparent');
     } else {
-      header.classList.remove('border-b', 'border-medical-blue-dark', 'shadow-sm');
+      // At top: opaque background
+      header.classList.remove('bg-transparent', 'border-b', 'border-medical-blue-dark', 'shadow-sm');
+      header.classList.add('bg-medical-blue');
     }
   });
 

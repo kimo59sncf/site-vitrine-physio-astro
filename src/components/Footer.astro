@@ -6,7 +6,7 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid md:grid-cols-4 gap-12 mb-12">
       <div>
-        <h3 class="text-xl font-bold mb-4">PhysioKbNyon</h3>
+        <h3 class="text-xl font-bold mb-4">PhysioKB</h3>
         <p class="text-gray-300 text-sm leading-relaxed">
           Cabinet de physiothérapie professionnel à Nyon, spécialisé en rééducation, thérapie manuelle et performance
           sportive.
@@ -16,17 +16,17 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react
       <div>
         <h4 class="text-lg font-bold mb-4">Services</h4>
         <ul class="space-y-2 text-sm text-gray-300">
-          <li><a href="#services" class="hover:text-medical-blue transition-colors">Rééducation</a></li>
-          <li><a href="#services" class="hover:text-medical-blue transition-colors">Thérapie Manuelle</a></li>
-          <li><a href="#services" class="hover:text-medical-blue transition-colors">Performance Sportive</a></li>
-          <li><a href="#services" class="hover:text-medical-blue transition-colors">Gestion de la Douleur</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Physiothérapie</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Thérapie manuelle</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Massage médical</a></li>
+          <li><a href="#services" class="hover:text-medical-blue transition-colors">Drainage lymphatique</a></li>
         </ul>
       </div>
 
       <div>
         <h4 class="text-lg font-bold mb-4">Liens</h4>
         <ul class="space-y-2 text-sm text-gray-300">
-          <li><a href="/" class="hover:text-medical-blue transition-colors">Accueil</a></li>
+          <li><a href={`${import.meta.env.BASE_URL}/`} class="hover:text-medical-blue transition-colors">Accueil</a></li>
           <li><a href="#services" class="hover:text-medical-blue transition-colors">Services</a></li>
           <li><a href="#booking" class="hover:text-medical-blue transition-colors">Réserver</a></li>
           <li><a href="#contact" class="hover:text-medical-blue transition-colors">Contact</a></li>
@@ -63,7 +63,7 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react
             <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <MapPin size={16} class="text-white" />
             </div>
-            <span>Nyon, Suisse</span>
+            <span>8 Rue Morache, Nyon</span>
           </li>
         </ul>
       </div>
@@ -83,7 +83,7 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react
       </div>
 
       <p class="text-sm text-gray-400 text-center md:text-right">
-        &copy; 2024 PhysioKbNyon. Tous droits réservés. |
+        &copy; 2024 PhysioKB. Tous droits réservés. |
         <a href="#" class="hover:text-medical-blue transition-colors">Politique de Confidentialité</a>
       </p>
     </div>
