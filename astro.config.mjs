@@ -12,9 +12,9 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   site: 'https://physiokbnyon.ch', // À remplacer avec l'URL réelle
   // Configuration pour le déploiement (nécessaire pour les API endpoints)
-  output: 'server',
+  output: 'static',
   // Configuration du serveur pour accepter les connexions externes
-  server: {
+  static: {
     host: '0.0.0.0',
     // Port changé (4321 déjà occupé)
     port: 4327,
