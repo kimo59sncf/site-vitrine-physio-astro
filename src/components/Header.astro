@@ -3,7 +3,7 @@ import { Menu } from 'lucide-react';
 const base = import.meta.env.BASE_URL;
 ---
 
-<header id="header" class="sticky top-0 z-50 bg-transparent transition-all duration-300">
+<header id="header" class="sticky top-0 z-50 bg-medical-blue transition-all duration-300">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
     <div class="flex items-center">
       <a href={`${base}/`} class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
@@ -49,35 +49,13 @@ const base = import.meta.env.BASE_URL;
   const navLinks = header.querySelectorAll('nav a:not(.bg-medical-blue)');
   const navButton = header.querySelector('nav button');
 
-  // Handle scroll to change header background and text colors (blue bar with white text)
+  // Handle scroll to add border and shadow when scrolled past hero
   window.addEventListener('scroll', () => {
     const heroHeight = window.innerHeight;
-    if (window.scrollY >= heroHeight) { // Change when scrolled to the second section (Services)
-      header.classList.remove('bg-transparent');
-      header.classList.add('bg-medical-blue', 'border-b', 'border-medical-blue-dark', 'shadow-sm');
-
-      // Keep text colors white for blue background
-      navLinks.forEach(link => {
-        link.classList.remove('text-white');
-        link.classList.add('text-white');
-      });
-      if (navButton) {
-        navButton.classList.remove('text-white');
-        navButton.classList.add('text-white');
-      }
+    if (window.scrollY >= heroHeight) { // Add border and shadow when scrolled to the second section (Services)
+      header.classList.add('border-b', 'border-medical-blue-dark', 'shadow-sm');
     } else {
-      header.classList.remove('bg-medical-blue', 'border-b', 'border-medical-blue-dark', 'shadow-sm');
-      header.classList.add('bg-transparent');
-
-      // Keep text colors white for transparent background
-      navLinks.forEach(link => {
-        link.classList.remove('text-white');
-        link.classList.add('text-white');
-      });
-      if (navButton) {
-        navButton.classList.remove('text-white');
-        navButton.classList.add('text-white');
-      }
+      header.classList.remove('border-b', 'border-medical-blue-dark', 'shadow-sm');
     }
   });
 
