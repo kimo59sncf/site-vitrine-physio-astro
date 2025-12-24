@@ -89,3 +89,48 @@ const slides = [
     </button>
   </div>
 </section>
+
+<script>
+  let currentSlide = 0;
+  const totalSlides = 5; // Nombre de slides
+  const slideshow = document.getElementById('hero-slideshow');
+  let autoSlideInterval;
+
+  function updateSlide() {
+    slideshow.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateSlide();
+  }
+
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    updateSlide();
+  }
+
+  // Changement automatique toutes les 5 secondes
+  function startAutoSlide() {
+    autoSlideInterval = setInterval(nextSlide, 5000);
+  }
+
+  function stopAutoSlide() {
+    clearInterval(autoSlideInterval);
+  }
+
+  // Démarrer le slideshow automatique au chargement
+  document.addEventListener('DOMContentLoaded', () => {
+    startAutoSlide();
+  });
+
+  // Arrêter le slideshow automatique au survol des boutons
+  document.querySelectorAll('button[onclick]').forEach(button => {
+    button.addEventListener('mouseenter', stopAutoSlide);
+    button.addEventListener('mouseleave', startAutoSlide);
+  });
+
+  // Arrêter le slideshow automatique au survol du slideshow
+  document.getElementById('hero-slideshow').addEventListener('mouseenter', stopAutoSlide);
+  document.getElementById('hero-slideshow').addEventListener('mouseleave', startAutoSlide);
+</script>

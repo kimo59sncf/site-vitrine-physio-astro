@@ -38,7 +38,7 @@ const testimonials = [
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {testimonials.map((testimonial, index) => (
-        <div class="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300">
+        <div class={`bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300 animate-fade-in-up`} style={`animation-delay: ${0.2 + index * 0.2}s; animation-fill-mode: both;`}>
           <div class="mb-6">
             <Quote size={32} class="text-medical-blue mb-4" />
             <p class="text-gray-600 italic leading-relaxed">"{testimonial.content}"</p>
@@ -66,19 +66,19 @@ const testimonials = [
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-12 border-t border-gray-300">
-      <div class="text-center">
+      <div class="text-center animate-fade-in-up" style="animation-delay: 0.8s; animation-fill-mode: both;">
         <p class="text-3xl font-bold text-medical-blue">500+</p>
         <p class="text-gray-600 mt-2">Patients Satisfaits</p>
       </div>
-      <div class="text-center">
+      <div class="text-center animate-fade-in-up" style="animation-delay: 1s; animation-fill-mode: both;">
         <p class="text-3xl font-bold text-medical-blue">98%</p>
         <p class="text-gray-600 mt-2">Taux de Satisfaction</p>
       </div>
-      <div class="text-center">
+      <div class="text-center animate-fade-in-up" style="animation-delay: 1.2s; animation-fill-mode: both;">
         <p class="text-3xl font-bold text-medical-blue">4.9/5</p>
         <p class="text-gray-600 mt-2">Note Moyenne</p>
       </div>
-      <div class="text-center">
+      <div class="text-center animate-fade-in-up" style="animation-delay: 1.4s; animation-fill-mode: both;">
         <p class="text-3xl font-bold text-medical-blue">100%</p>
         <p class="text-gray-600 mt-2">Méthodes Modernes</p>
       </div>
