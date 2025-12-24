@@ -11,6 +11,7 @@ export default defineConfig({
   }), react()],
 //   adapter: node({ mode: 'standalone' }),
   site: 'https://physiokbnyon.ch', // À remplacer avec l'URL réelle
+    base: '/site-vitrine-physio-astro',
   // Configuration pour le déploiement (nécessaire pour les API endpoints)
   output: 'static',
   // Configuration du serveur pour accepter les connexions externes
