@@ -8,12 +8,13 @@ export interface Props {
   isHomePage?: boolean;
 }
 
+const base = import.meta.env.BASE_URL;
 const {
   title,
   description,
   canonicalUrl,
   keywords = "physiothérapeute Nyon, kinésithérapeute Suisse, PhysioKbNyon, rééducation, thérapie manuelle",
-  image = "/images/social-share.webp",
+  image = base + "images/social-share.webp",
   isHomePage = false,
 } = Astro.props;
 

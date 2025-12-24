@@ -3,6 +3,7 @@ import { ViewTransitions } from 'astro:transitions';
 import SEO, { type Props as SEOProps } from '../components/SEO.astro';
 import WhatsAppButton from '../components/WhatsAppButton';
 import '../styles/global.css';
+const base = import.meta.env.BASE_URL;
 
 export interface Props {
   seo: SEOProps;
@@ -16,7 +17,7 @@ const { seo } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={base + 'images/favicon.svg'} />
     <meta name="generator" content={Astro.generator} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />

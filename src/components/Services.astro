@@ -1,52 +1,53 @@
 ---
 import { Heart, Zap, Trophy, Stethoscope, Waves, Brain } from 'lucide-react';
+const base = import.meta.env.BASE_URL;
 
 const services = [
   {
     icon: Heart,
-    image: '/images/cabinet-interieur.webp',
+    image: base + 'images/cabinet-interieur.webp',
     title: 'Physiothérapie',
     description: 'Rééducation, douleurs de dos, articulaires et musculaires, suites post‑opératoires, incontinence, vertiges, acouphènes, stress, etc.',
   },
   {
     icon: Zap,
-    image: '/images/physiotherapie-specialisee.webp',
+    image: base + 'images/physiotherapie-specialisee.webp',
     title: 'Physiothérapie Spécialisée',
     description: 'Intégrant différentes approches et méthodes avancées selon la pathologie.',
   },
   {
     icon: Trophy,
-    image: '/images/chiropractie.webp',
+    image: base + 'images/chiropractie.webp',
     title: 'Chiropractie',
     description: 'Soins chiropratiques pour les troubles musculo‑squelettiques et rachidiens.',
   },
   {
     icon: Waves,
-    image: '/images/massotherapie.webp',
+    image: base + 'images/massotherapie.webp',
     title: 'Massothérapie',
     description: 'Massages thérapeutiques pour douleurs, tension musculaire, récupération, gestion du stress.',
   },
   {
     icon: Stethoscope,
-    image: '/images/blessures-sportives.webp',
+    image: base + 'images/blessures-sportives.webp',
     title: 'Traitement des Blessures Sportives',
     description: 'Prévention, prise en charge et rééducation après blessure liée au sport.',
   },
   {
     icon: Brain,
-    image: '/images/accidents-travail.webp',
+    image: base + 'images/accidents-travail.webp',
     title: 'Traitement des Accidents du Travail',
     description: 'Rééducation et suivi après blessures professionnelles.',
   },
   {
     icon: Heart,
-    image: '/images/cabinet-principal.webp',
+    image: base + 'images/cabinet-principal.webp',
     title: 'Soins sur Place au Cabinet',
     description: 'Soins et traitements sur place au cabinet, avec équipements de dernière génération.',
   },
   {
     icon: Zap,
-    image: '/images/services-domicile.webp',
+    image: base + 'images/services-domicile.webp',
     title: 'Services à Domicile',
     description: 'Physiothérapie à domicile pour une prise en charge personnalisée.',
   },
