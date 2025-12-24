@@ -1,5 +1,6 @@
 ---
 import { Star, Quote } from 'lucide-react';
+const base = import.meta.env.BASE_URL;
 
 const testimonials = [
   {
@@ -51,7 +52,7 @@ const testimonials = [
 
           <div class="flex items-center">
             <img
-              src={`/images/testimonial-${index + 1}.webp`}
+              src={`/site-vitrine-physio-astro/images/testimonial-${index + 1}.webp`}
               alt={`${testimonial.name} - ${testimonial.role}`}
               class="w-12 h-12 rounded-full object-cover mr-4"
             />
