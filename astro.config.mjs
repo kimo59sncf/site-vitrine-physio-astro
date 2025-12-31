@@ -1,31 +1,28 @@
 import { defineConfig } from 'astro/config';
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
-// import node from "@astrojs/node";
+import node from "@astrojs/node";
 
-// https://astro.build/config
+const isDevBranch = process.env.GITHUB_REF === 'refs/heads/dev';
+
 export default defineConfig({
   integrations: [tailwind({
-    // Configuration pour utiliser le fichier tailwind.config.mjs
     config: "./tailwind.config.mjs"
   }), react()],
-//   adapter: node({ mode: 'standalone' }),
-  site: 'https://physiokbnyon.ch', // À remplacer avec l'URL réelle
-    base: '/site-vitrine-physio-astro',
-  // Configuration pour le déploiement (nécessaire pour les API endpoints)
-  output: 'static',
-  // Configuration du serveur pour accepter les connexions externes
-  static: {
-    host: '0.0.0.0',
-    // Port changé (4321 déjà occupé)
-    port: 4327,
-  },
-  // Vite configuration pour les hosts autorisés
-  vite: {
-    server: {
-      middlewareMode: false,
-      // Désactiver HMR pour éviter les rechargements en boucle
-      hmr: false,
+  adapter: isDevBranch ? undefined : node({ mode: 'standalone' }),
+  site: isDevBranch ? 'https://kimo59sncf.github.io' : 'https://physiokbnyon.ch',
+  base: isDevBranch ? '/site-vitrine-physio-astro' : '/',
+  output: isDevBranch ? 'static' : 'server',
+  ...(isDevBranch ? {} : {
+    static: {
+      host: '0.0.0.0',
+      port: 4327,
     },
-  },
+    vite: {
+      server: {
+        middlewareMode: false,
+        hmr: false,
+      },
+    },
+  }),
 });
