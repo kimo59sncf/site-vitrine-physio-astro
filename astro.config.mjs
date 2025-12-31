@@ -11,6 +11,7 @@ export default defineConfig({
   }), react()],
   adapter: node({ mode: 'standalone' }),
   site: 'https://physiokbnyon.ch',
+  base: '/',
   // Configuration pour le déploiement (nécessaire pour les API endpoints)
   output: 'server',
   // Configuration du serveur pour accepter les connexions externes
