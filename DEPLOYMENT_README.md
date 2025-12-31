@@ -6,7 +6,28 @@
 - Accès SSH
 - Domaine configuré (physiokbnyon.ch)
 
-## Étapes de déploiement
+## Déploiement automatique via GitHub Actions
+
+Le projet est configuré pour se déployer automatiquement sur le VPS à chaque push sur la branche `main`.
+
+### Configuration des secrets GitHub
+
+1. Allez dans votre repository GitHub > Settings > Secrets and variables > Actions
+2. Ajoutez un nouveau secret nommé `SSH_PRIVATE_KEY`
+3. Collez le contenu de votre clé privée SSH (celle qui correspond à la clé publique sur le VPS)
+
+### Comment ça fonctionne
+
+- À chaque push sur `main`, GitHub Actions se déclenche
+- Le workflow se connecte au VPS via SSH
+- Il met à jour le code, installe les dépendances, build l'application
+- Redémarre l'application avec PM2
+
+### Déclenchement manuel (optionnel)
+
+Vous pouvez aussi déclencher le déploiement manuellement depuis l'onglet Actions de GitHub.
+
+## Déploiement manuel (si nécessaire)
 
 ### 1. Transférer les fichiers sur le VPS
 

@@ -52,18 +52,18 @@ export const POST: APIRoute = async ({ request }) => {
     // Send email
     try {
       const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com', // Or your SMTP server
+        host: 'mail.infomaniak.com',
         port: 587,
         secure: false,
         auth: {
-          user: process.env.EMAIL_USER || 'your-email@gmail.com',
-          pass: process.env.EMAIL_PASS || 'your-password',
+          user: 'cabinet@physio-kbnyon.ch',
+          pass: '%U-7rk7&Flo!noAT',
         },
       });
 
       const mailOptions = {
-        from: process.env.EMAIL_USER || 'your-email@gmail.com',
-        to: 'cabinet@physio-kbnyon.ch', // Replace with actual email
+        from: 'cabinet@physio-kbnyon.ch',
+        to: 'cabinet@physio-kbnyon.ch',
         subject: 'Nouvelle demande de rendez-vous ou informations',
         html: `
           <h2>Nouvelle demande reçue</h2>
