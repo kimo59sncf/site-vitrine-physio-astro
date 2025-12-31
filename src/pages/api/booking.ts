@@ -56,14 +56,14 @@ export const POST: APIRoute = async ({ request }) => {
         port: 587,
         secure: false,
         auth: {
-          user: 'cabinet@physio-kbnyon.ch',
+          user: 'contact@physiokbnyon.ch',
           pass: '%U-7rk7&Flo!noAT',
         },
       });
 
       const mailOptions = {
-        from: 'cabinet@physio-kbnyon.ch',
-        to: 'cabinet@physio-kbnyon.ch',
+        from: 'contact@physiokbnyon.ch',
+        to: 'contact@physiokbnyon.ch',
         subject: 'Nouvelle demande de rendez-vous ou informations',
         html: `
           <h2>Nouvelle demande reçue</h2>

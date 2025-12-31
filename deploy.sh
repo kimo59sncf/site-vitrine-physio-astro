@@ -22,6 +22,7 @@ npm install
 # Construire l'application si ce n'est pas déjà fait
 if [ ! -d "dist" ]; then
     echo "Construction de l'application..."
+    export NODE_ENV=production
     npm run build
 fi
 
@@ -71,6 +72,12 @@ cat << 'EOF'
 server {
     listen 80;
     server_name physiokbnyon.ch www.physiokbnyon.ch;
+
+    location /images/ {
+        alias /home/ubuntu/physio-site/public/images/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
 
     location / {
         proxy_pass http://localhost:3000;

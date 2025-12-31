@@ -17,10 +17,6 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     setIsOpen(!isOpen);
   };
 
-  const handleWhatsAppClick = () => {
-    window.open(whatsappUrl, '_blank');
-    setIsOpen(false);
-  };
 
   return (
     <>
@@ -29,13 +25,16 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
           <div className="absolute bottom-20 right-0 bg-white rounded-lg shadow-2xl p-4 w-64 mb-4 animate-fadeIn">
             <h3 className="font-bold text-gray-800 mb-3">Prendre Rendez-vous</h3>
             <p className="text-sm text-gray-600 mb-4">Cliquez ci-dessous pour nous contacter via WhatsApp.</p>
-            <button
-              onClick={handleWhatsAppClick}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center"
+              onClick={() => setIsOpen(false)}
             >
               <MessageCircle size={18} className="mr-2" />
               Ouvrir WhatsApp
-            </button>
+            </a>
           </div>
         )}
 
