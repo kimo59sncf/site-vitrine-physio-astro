@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
-// import node from "@astrojs/node";
+import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,11 +9,10 @@ export default defineConfig({
     // Configuration pour utiliser le fichier tailwind.config.mjs
     config: "./tailwind.config.mjs"
   }), react()],
-//   adapter: node({ mode: 'standalone' }),
-  site: 'https://kimo59sncf.github.io',
-    base: '/site-vitrine-physio-astro',
+  adapter: node({ mode: 'standalone' }),
+  site: 'https://physiokbnyon.ch',
   // Configuration pour le déploiement (nécessaire pour les API endpoints)
-  output: 'static',
+  output: 'server',
   // Configuration du serveur pour accepter les connexions externes
   static: {
     host: '0.0.0.0',
