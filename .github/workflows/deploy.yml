@@ -3,7 +3,7 @@ name: Deploy Astro Site to VPS
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -20,11 +20,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd /home/ubuntu/app || mkdir /home/ubuntu/app && cd /home/ubuntu/app
-            git pull origin main || git clone https://github.com/kimo59sncf/site-vitrine-physio-astro.git .  
+            cd ~/physio-site
+            git pull origin main
             npm install
             npm run build
-            sudo rm -rf /var/www/html/*
-            sudo cp -r dist/* /var/www/html/
-            sudo chown -R www-data:www-data /var/www/html
-            sudo systemctl reload nginx
+            pm2 restart physio-site
+            pm2 save
