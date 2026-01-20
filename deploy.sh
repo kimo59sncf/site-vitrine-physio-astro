@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script de déploiement pour le site Physiothérapie sur VPS
-# À exécuter sur le VPS après avoir transféré les fichiers
+# À exécuter sur le VPS après avoir cloné le repository GitHub
 
 echo "=== Déploiement du site Physiothérapie ==="
 
@@ -48,7 +48,7 @@ if ! command -v pm2 &> /dev/null; then
 fi
 
 # Créer le fichier de configuration PM2
-cat > ecosystem.config.js << 'EOF'
+cat > ecosystem.config.cjs << 'EOF'
 module.exports = {
   apps: [{
     name: 'physio-site',
@@ -74,7 +74,7 @@ server {
     server_name physiokbnyon.ch www.physiokbnyon.ch;
 
     location /images/ {
-        alias /home/ubuntu/physio-site/public/images/;
+        alias /home/ubuntu/physio-site/dist/client/images/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
@@ -101,7 +101,7 @@ echo "sudo nginx -t"
 echo "sudo systemctl reload nginx"
 echo ""
 echo "# Démarrer l'application:"
-echo "pm2 start ecosystem.config.js"
+echo "pm2 start ecosystem.config.cjs"
 echo "pm2 save"
 echo "pm2 startup"
 echo ""

@@ -29,19 +29,13 @@ Vous pouvez aussi déclencher le déploiement manuellement depuis l'onglet Actio
 
 ## Déploiement manuel (si nécessaire)
 
-### 1. Transférer les fichiers sur le VPS
+### 1. Récupérer le code depuis GitHub sur le VPS
 
-Utilisez SCP, SFTP, ou Git pour transférer tous les fichiers du projet :
+Clonez directement le repository GitHub sur le VPS :
 
-```bash
-# Depuis votre machine locale
-scp -i ~/.ssh/id_rsa -r . ubuntu@83.228.219.249:~/physio-site
-```
-
-Ou si vous utilisez Git :
 ```bash
 # Sur le VPS
-git clone [votre-repo] physio-site
+git clone https://github.com/kimo59sncf/site-vitrine-physio-astro.git physio-site
 cd physio-site
 ```
 
@@ -87,6 +81,12 @@ server {
     listen 80;
     server_name physiokbnyon.ch www.physiokbnyon.ch;
 
+    location /images/ {
+        alias /home/ubuntu/physio-site/dist/client/images/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -113,7 +113,7 @@ sudo systemctl reload nginx
 
 ```bash
 # Démarrer avec PM2
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
@@ -155,7 +155,7 @@ sudo systemctl reload nginx
 
 ## Configuration email
 
-Pour que l'API de réservation fonctionne, configurez les variables d'environnement pour l'email dans `ecosystem.config.js` :
+Pour que l'API de réservation fonctionne, configurez les variables d'environnement pour l'email dans `ecosystem.config.cjs` :
 
 ```javascript
 env: {

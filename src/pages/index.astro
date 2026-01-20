@@ -11,10 +11,15 @@ import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 
 const base = import.meta.env.BASE_URL;
+// Use production domain for production, GitHub Pages for dev
+const canonicalUrl = base.includes('site-vitrine-physio-astro')
+  ? "https://kimo59sncf.github.io/site-vitrine-physio-astro/"
+  : "https://www.physiokbnyon.ch";
+
 const seoProps = {
   title: "PhysioKB - Cabinet de Physiothérapie à Nyon",
   description: "PhysioKB : Prenez soin de votre corps, durablement. Cabinet de physiothérapie à Nyon spécialisé en rééducation, thérapie manuelle et massage médical.",
-  canonicalUrl: "https://kimo59sncf.github.io/site-vitrine-physio-astro/",
+  canonicalUrl,
   keywords: "physiothérapeute Nyon, kinésithérapeute Suisse, PhysioKB, rééducation, thérapie manuelle, massage médical, drainage lymphatique",
   image: base + "/images/social-share.webp",
   isHomePage: true,

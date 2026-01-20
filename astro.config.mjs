@@ -3,7 +3,7 @@ import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
 import node from "@astrojs/node";
 
-const isGitHubPages = process.env.GITHUB_REF === 'refs/heads/dev';
+const isGitHubPages = process.env.GITHUB_REF === 'refs/heads/dev' || process.env.BUILD_MODE === 'github-pages';
 
 export default defineConfig({
   integrations: [tailwind({
