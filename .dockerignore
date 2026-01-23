@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.git
+.github
+.env
+.env.local
+dist
+*.md
+DEPLOYMENT_README.md
+deploy.sh
+nginx.conf
+.gitignore
+.vscode
+.astro
+public/robots.txt

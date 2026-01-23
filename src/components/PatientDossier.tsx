@@ -1,6 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Plus, X, Save, FileText, User, Calendar, Phone, Mail, ChevronDown } from 'lucide-react';
 
+interface Pin {
+  x: number;
+  y: number;
+  diagnosis: string;
+  notes: string;
+  eva: number;
+}
+
+interface BodyChart3DProps {
+  view: string;
+  onAddPin: (x: number, y: number) => void;
+  pins: Pin[];
+}
+
+interface PinPopoverProps {
+  pin: Pin;
+  index: number;
+  onClose: () => void;
+  onSave: (index: number, data: Partial<Pin>) => void;
+}
+
 const DIAGNOSES = [
   'Tendinopathie du Supraspinatus',
   'Lésion Ménisque Interne',
@@ -19,8 +40,8 @@ const DIAGNOSES = [
   'Syndrome du Piriforme'
 ];
 
-const BodyChart3D = ({ view, onAddPin, pins }) => {
-  const canvasRef = useRef(null);
+const BodyChart3D: React.FC<BodyChart3DProps> = ({ view, onAddPin, pins }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rotation, setRotation] = useState(0);
   const isDragging = useRef(false);
   const lastX = useRef(0);
@@ -28,8 +49,10 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const width = canvas.width;
     const height = canvas.height;
 
@@ -52,12 +75,12 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
     pins.forEach((pin, idx) => {
       const x = (pin.x / 100) * width;
       const y = (pin.y / 100) * height;
-      
+
       ctx.beginPath();
       ctx.arc(x + 2, y + 2, 8, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
       ctx.fill();
-      
+
       ctx.beginPath();
       ctx.arc(x, y, 8, 0, Math.PI * 2);
       const evaColor = getEVAColor(pin.eva);
@@ -66,16 +89,16 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.stroke();
-      
+
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 10px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(idx + 1, x, y);
+      ctx.fillText((idx + 1).toString(), x, y);
     });
   }, [view, rotation, pins]);
 
-  const drawMuscles = (ctx, w, h) => {
+  const drawMuscles = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     const cx = w / 2;
     const cy = h / 2;
 
@@ -210,7 +233,7 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
     ctx.stroke();
   };
 
-  const drawSkeleton = (ctx, w, h) => {
+  const drawSkeleton = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     const cx = w / 2;
     const cy = h / 2;
 
@@ -342,25 +365,25 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
     ctx.fillRect(cx + 12, cy + 255, 20, 10);
   };
 
-  const getEVAColor = (eva) => {
+  const getEVAColor = (eva: number): string => {
     if (eva <= 3) return '#2ecc71';
     if (eva <= 6) return '#f39c12';
     return '#e74c3c';
   };
 
-  const handleCanvasClick = (e) => {
-    const rect = e.target.getBoundingClientRect();
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     onAddPin(x, y);
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDragging.current = true;
     lastX.current = e.clientX;
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isDragging.current) {
       const deltaX = e.clientX - lastX.current;
       setRotation(prev => prev + deltaX * 0.01);
@@ -392,16 +415,16 @@ const BodyChart3D = ({ view, onAddPin, pins }) => {
   );
 };
 
-const PinPopover = ({ pin, index, onClose, onSave }) => {
+const PinPopover: React.FC<PinPopoverProps> = ({ pin, index, onClose, onSave }) => {
   const [diagnosis, setDiagnosis] = useState(pin.diagnosis || '');
   const [notes, setNotes] = useState(pin.notes || '');
   const [eva, setEva] = useState(pin.eva || 5);
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredDiagnoses, setFilteredDiagnoses] = useState(DIAGNOSES);
 
-  const handleDiagnosisChange = (value) => {
+  const handleDiagnosisChange = (value: string) => {
     setDiagnosis(value);
-    const filtered = DIAGNOSES.filter(d => 
+    const filtered = DIAGNOSES.filter(d =>
       d.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredDiagnoses(filtered);
@@ -413,7 +436,7 @@ const PinPopover = ({ pin, index, onClose, onSave }) => {
     onClose();
   };
 
-  const getEVAColor = (value) => {
+  const getEVAColor = (value: number): string => {
     if (value <= 3) return 'bg-green-500';
     if (value <= 6) return 'bg-yellow-500';
     return 'bg-red-500';
@@ -523,17 +546,17 @@ const PinPopover = ({ pin, index, onClose, onSave }) => {
 export default function PatientDossier() {
   const [activeTab, setActiveTab] = useState('bodychart');
   const [view, setView] = useState('muscles');
-  const [pins, setPins] = useState([]);
-  const [selectedPin, setSelectedPin] = useState(null);
+  const [pins, setPins] = useState<Pin[]>([]);
+  const [selectedPin, setSelectedPin] = useState<number | null>(null);
   const [showScanner, setShowScanner] = useState(false);
 
-  const handleAddPin = (x, y) => {
-    const newPin = { x, y, diagnosis: '', notes: '', eva: 5 };
+  const handleAddPin = (x: number, y: number) => {
+    const newPin: Pin = { x, y, diagnosis: '', notes: '', eva: 5 };
     setPins([...pins, newPin]);
     setSelectedPin(pins.length);
   };
 
-  const handleSavePin = (index, data) => {
+  const handleSavePin = (index: number, data: Partial<Pin>) => {
     const updated = [...pins];
     updated[index] = { ...updated[index], ...data };
     setPins(updated);
@@ -547,7 +570,7 @@ export default function PatientDossier() {
     email: 'martin.dupont@email.fr'
   };
 
-  const getEVAColor = (eva) => {
+  const getEVAColor = (eva: number): string => {
     if (eva <= 3) return 'text-green-400';
     if (eva <= 6) return 'text-yellow-400';
     return 'text-red-400';
@@ -691,3 +714,54 @@ export default function PatientDossier() {
                                   <span className={`text-sm font-semibold ${getEVAColor(pin.eva)}`}>
                                     EVA: {pin.eva}/10
                                   </span>
+                                </div>
+                                {pin.diagnosis && (
+                                  <p className="text-sm text-gray-300 mb-1">{pin.diagnosis}</p>
+                                )}
+                                {pin.notes && (
+                                  <p className="text-xs text-gray-400 truncate">{pin.notes}</p>
+                                )}
+                              </div>
+                              <ChevronDown size={16} className="text-gray-400" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'notes' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold">Notes Cliniques</h2>
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <p className="text-gray-400">Section notes en développement...</p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'documents' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold">Documents</h2>
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <p className="text-gray-400">Section documents en développement...</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {selectedPin !== null && (
+        <PinPopover
+          pin={pins[selectedPin]}
+          index={selectedPin}
+          onClose={() => setSelectedPin(null)}
+          onSave={handleSavePin}
+        />
+      )}
+    </div>
+  );
+}
