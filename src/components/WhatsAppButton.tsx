@@ -7,7 +7,7 @@ interface WhatsAppButtonProps {
 }
 
 const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
-  phoneNumber = '41782556061',
+  phoneNumber = '41277444488',
   message = 'Bonjour, je souhaite prendre rendez-vous pour une séance de physiothérapie.',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,4 +60,3 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 };
 
 export default WhatsAppButton;
-

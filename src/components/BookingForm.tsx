@@ -196,7 +196,7 @@ const BookingForm: React.FC = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="078 255 60 61"
+                  placeholder="027 744 44 88"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-medical-blue"
                   required
                 />
