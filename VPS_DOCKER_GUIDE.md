@@ -1,6 +1,42 @@
 # Guide complet : Déployer le site sur VPS avec Docker
 
-## 📋 Prérequis sur le VPS
+## � Architecture VPS
+
+### 🖥️ Informations VPS
+- **Adresse IP** : `83.228.219.249`
+- **Utilisateur SSH** : `ubuntu`
+- **OS** : Ubuntu/Debian
+- **Emplacement projet** : `~/app/physio-site`
+
+### 🐳 Architecture Docker
+
+#### Conteneur 1 : physiotherapie-site (Application Astro)
+- **Image** : `node:18-alpine` (multi-stage build)
+- **Nom** : `physio-site-container`
+- **Port interne** : `4327`
+- **Port externe** : `3000` (mapping: `3000:4327`)
+- **Env** : `NODE_ENV=production`, `PORT=4327`, `HOST=0.0.0.0`
+- **Health check** : `curl -f http://localhost:4327/` (30s)
+- **Restart** : `unless-stopped`
+
+#### Conteneur 2 : nginx (Reverse Proxy + SSL)
+- **Image** : `nginx:alpine`
+- **Nom** : `physio-nginx`
+- **Ports** : `80:80` (HTTP), `443:443` (HTTPS)
+- **Configuration** : `nginx.conf`
+- **Domaines** : `physiokbnyon.ch`, `www.physiokbnyon.ch`
+
+### 🌐 Flux de requêtes
+```
+Client → Nginx (80/443) → Container Astro (3000:4327)
+```
+
+### 📦 Stack Technique
+- **Framework** : Astro 5.16.6
+- **Adapter** : `@astrojs/node` (mode SSR)
+- **Port application** : `0.0.0.0:4327`
+
+## �📋 Prérequis sur le VPS
 - Ubuntu/Debian installé
 - Accès SSH
 - Docker et Docker Compose installés
@@ -169,17 +205,27 @@ sudo systemctl reload nginx
 ## 8️⃣ ACCÉDER AU SITE
 
 ### 📍 L'application s'écoute sur :
-- **Port 3000** (Nginx → vers 4327)
-- **Domaine** : http://physiokbnyon.ch (si configuré)
-- **IP VPS** : http://83.228.219.249:3000
+
+| Accès | URL |
+|-------|-----|
+| **IP directe** | `http://83.228.219.249:3000` |
+| **Domaine (Nginx)** | `http://physiokbnyon.ch` |
+| **Domaine SSL** | `https://physiokbnyon.ch` |
+| **Test local VPS** | `curl http://localhost:3000` |
 
 ```bash
 # Tester depuis le VPS
 curl http://localhost:3000
+curl http://localhost:4327  # Port interne du conteneur
 
 # Tester depuis votre machine
 curl http://83.228.219.249:3000
 ```
+
+**Note** : 
+- Port **3000** : Nginx expose l'application (HTTP/HTTPS)
+- Port **4327** : Port interne du conteneur Astro
+- Nginx route automatiquement 80/443 → 3000 → 4327
 
 ---
 
@@ -225,6 +271,12 @@ mkdir -p ~/app && cd ~/app
 git clone -b dev https://github.com/kimo59sncf/site-vitrine-physio-astro.git physio-site
 cd physio-site
 docker-compose up -d
+```
+
+**Accès au site :**
+```
+http://83.228.219.249:3000  (via IP)
+http://physiokbnyon.ch      (via domaine avec Nginx + SSL)
 ```
 
 **Mises à jour futures :**
