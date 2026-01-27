@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -27,12 +29,29 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     let prescriptionPath = null;
+    let prescriptionAttachment = null;
     if (prescription) {
       const timestamp = Date.now();
       const filename = `prescription_${timestamp}_${prescription.name}`;
-      await prescription.arrayBuffer();
+      
+      // Créer le dossier uploads s'il n'existe pas
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      // Sauvegarder le fichier
+      const filePath = path.join(uploadsDir, filename);
+      const arrayBuffer = await prescription.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      fs.writeFileSync(filePath, buffer);
+      
       prescriptionPath = `/uploads/${filename}`;
-      console.log(`Fichier reçu: ${prescription.name} (${prescription.size} bytes)`);
+      prescriptionAttachment = {
+        filename: prescription.name,
+        path: filePath,
+      };
+      console.log(`Fichier sauvegardé: ${prescription.name} (${prescription.size} bytes) -> ${filePath}`);
     }
 
     const booking = {
@@ -51,14 +70,26 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Send email
     try {
+      console.log('Configuration SMTP:', {
+        host: 'mail.infomaniak.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'contact@physiokbnyon.ch',
+        }
+      });
+
       const transporter = nodemailer.createTransport({
         host: 'mail.infomaniak.com',
-        port: 587,
-        secure: false,
+        port: 465,
+        secure: true,
         auth: {
           user: 'contact@physiokbnyon.ch',
           pass: '%U-7rk7&Flo!noAT',
         },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
 
       const mailOptions = {
@@ -72,15 +103,30 @@ export const POST: APIRoute = async ({ request }) => {
           <p><strong>Téléphone:</strong> ${phone}</p>
           <p><strong>Motif:</strong> ${reason}</p>
           <p><strong>Message:</strong> ${message || 'Aucun'}</p>
-          ${prescriptionPath ? `<p><strong>Ordonnance:</strong> ${prescriptionPath}</p>` : ''}
+          ${prescriptionPath ? `<p><strong>Ordonnance:</strong> Voir pièce jointe</p>` : ''}
         `,
+        attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log('Email envoyé avec succès');
+      console.log('Tentative d\'envoi d\'email...');
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email envoyé avec succès:', info.messageId);
     } catch (emailError) {
       console.error('Erreur envoi email:', emailError);
-      // Continue without failing the request
+      console.error('Détails de l\'erreur:', emailError instanceof Error ? emailError.message : String(emailError));
+      
+      // Retourner l'erreur au client pour débogage
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Email sending failed',
+          message: emailError instanceof Error ? emailError.message : 'Unknown email error',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // TODO: Send WhatsApp message (requires API setup)
