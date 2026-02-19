@@ -14,7 +14,7 @@
 - **Image** : `node:18-alpine` (multi-stage build)
 - **Nom** : `physio-site-container`
 - **Port interne** : `4327`
-- **Port externe** : `3000` (mapping: `3000:4327`)
+- **Port externe** : `8080` (mapping: `8080:4327`)
 - **Env** : `NODE_ENV=production`, `PORT=4327`, `HOST=0.0.0.0`
 - **Health check** : `curl -f http://localhost:4327/` (30s)
 - **Restart** : `unless-stopped`
@@ -25,10 +25,11 @@
 - **Ports** : `80:80` (HTTP), `443:443` (HTTPS)
 - **Configuration** : `nginx.conf`
 - **Domaines** : `physiokbnyon.ch`, `www.physiokbnyon.ch`
+- **Proxy vers** : `http://physiotherapie-site:4327` (via réseau Docker)
 
 ### 🌐 Flux de requêtes
 ```
-Client → Nginx (80/443) → Container Astro (3000:4327)
+Client → Nginx (80/443) → Réseau Docker → Container Astro (4327)
 ```
 
 ### 📦 Stack Technique
@@ -117,7 +118,24 @@ docker-compose up -d --build
 
 ## 4️⃣ ALTERNATIVE : Lancer manuellement avec Docker
 
-### ✅ Méthode 2 : Script de déploiement automatisé
+### ✅ Méthode 2 : Script de déploiement automatisé (Recommandé)
+
+```bash
+# Rendre le script exécutable
+chmod +x vps-deploy.sh
+
+# Lancer le script
+./vps-deploy.sh
+
+# Le script va:
+# - Arrêter les conteneurs existants
+# - Builder les nouvelles images Docker
+# - Démarrer les conteneurs avec docker-compose
+# - Vérifier l'état et afficher les logs
+# - Tester l'accessibilité du site
+```
+
+### ✅ Méthode 3 : Script de déploiement simple
 
 ```bash
 # Rendre le script exécutable
@@ -179,10 +197,13 @@ cd ~/app/physio-site
 # Mettre à jour le code depuis GitHub
 git pull origin dev
 
-# Avec docker-compose
+# Méthode 1 : Avec docker-compose (recommandé)
 docker-compose up -d --build
 
-# OU avec le script
+# Méthode 2 : Avec le script de déploiement automatisé
+./vps-deploy.sh
+
+# Méthode 3 : Avec le script simple
 ./docker-deploy.sh
 ```
 
@@ -190,14 +211,15 @@ docker-compose up -d --build
 
 ## 7️⃣ CONFIGURATION NGINX (si nécessaire)
 
-Le fichier `nginx.conf` doit router les requêtes vers le port 4327 (l'app Astro).
+Le fichier `nginx.conf` route les requêtes vers `http://physiotherapie-site:4327` via le réseau Docker.
 
 **Vérifier la configuration :**
 ```bash
-sudo nginx -t
+# Tester la configuration nginx dans le conteneur
+docker exec physio-nginx nginx -t
 
-# Recharger Nginx
-sudo systemctl reload nginx
+# Recharger Nginx dans le conteneur
+docker exec physio-nginx nginx -s reload
 ```
 
 ---
@@ -208,24 +230,25 @@ sudo systemctl reload nginx
 
 | Accès | URL |
 |-------|-----|
-| **IP directe** | `http://83.228.219.249:3000` |
+| **IP directe** | `http://83.228.219.249:8080` |
 | **Domaine (Nginx)** | `http://physiokbnyon.ch` |
 | **Domaine SSL** | `https://physiokbnyon.ch` |
-| **Test local VPS** | `curl http://localhost:3000` |
+| **Test local VPS** | `curl http://localhost:8080` |
 
 ```bash
 # Tester depuis le VPS
-curl http://localhost:3000
-curl http://localhost:4327  # Port interne du conteneur
+curl http://localhost:8080
+curl http://localhost:4327  # Port interne du conteneur (via docker exec)
 
 # Tester depuis votre machine
-curl http://83.228.219.249:3000
+curl http://83.228.219.249:8080
 ```
 
-**Note** : 
-- Port **3000** : Nginx expose l'application (HTTP/HTTPS)
+**Note** :
+- Port **80/443** : Nginx expose l'application (HTTP/HTTPS)
+- Port **8080** : Port externe du conteneur Astro (mapping: 8080:4327)
 - Port **4327** : Port interne du conteneur Astro
-- Nginx route automatiquement 80/443 → 3000 → 4327
+- Nginx route automatiquement 80/443 → physiotherapie-site:4327 (via réseau Docker)
 
 ---
 
@@ -245,8 +268,8 @@ docker port physio-site-container
 
 ### Port déjà utilisé ?
 ```bash
-# Trouver le processus qui utilise le port 3000
-sudo lsof -i :3000
+# Trouver le processus qui utilise le port 8080
+sudo lsof -i :8080
 
 # Tuer le processus
 sudo kill -9 <PID>
@@ -275,7 +298,7 @@ docker-compose up -d
 
 **Accès au site :**
 ```
-http://83.228.219.249:3000  (via IP)
+http://83.228.219.249:8080  (via IP)
 http://physiokbnyon.ch      (via domaine avec Nginx + SSL)
 ```
 
@@ -283,7 +306,12 @@ http://physiokbnyon.ch      (via domaine avec Nginx + SSL)
 ```bash
 cd ~/app/physio-site
 git pull origin dev
+
+# Option 1 : docker-compose (recommandé)
 docker-compose up -d --build
+
+# Option 2 : Script de déploiement automatisé
+./vps-deploy.sh
 ```
 
 **Vérifier l'état :**
