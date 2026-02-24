@@ -26,12 +26,30 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    let prescriptionPath = null;
-    if (prescription) {
+    // Préparer le fichier en pièce jointe si présent
+    let attachment = null;
+    let prescriptionInfo = null;
+    
+    if (prescription && prescription.size > 0) {
       const timestamp = Date.now();
-      const filename = `prescription_${timestamp}_${prescription.name}`;
-      await prescription.arrayBuffer();
-      prescriptionPath = `/uploads/${filename}`;
+      const filename = `ordonnance_${timestamp}_${prescription.name}`;
+      
+      // Convertir le fichier en Buffer pour l'email
+      const arrayBuffer = await prescription.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      attachment = {
+        filename: filename,
+        content: buffer,
+        contentType: prescription.type || 'application/octet-stream',
+      };
+      
+      prescriptionInfo = {
+        originalName: prescription.name,
+        size: prescription.size,
+        type: prescription.type,
+      };
+      
       console.log(`Fichier reçu: ${prescription.name} (${prescription.size} bytes)`);
     }
 
@@ -42,14 +60,14 @@ export const POST: APIRoute = async ({ request }) => {
       phone,
       reason,
       message,
-      prescriptionPath,
+      prescriptionInfo,
       createdAt: new Date().toISOString(),
       status: 'pending',
     };
 
     console.log('Nouvelle demande:', booking);
 
-    // Send email
+    // Send email with attachment
     try {
       const transporter = nodemailer.createTransport({
         host: 'mail.infomaniak.com',
@@ -72,12 +90,14 @@ export const POST: APIRoute = async ({ request }) => {
           <p><strong>Téléphone:</strong> ${phone}</p>
           <p><strong>Motif:</strong> ${reason}</p>
           <p><strong>Message:</strong> ${message || 'Aucun'}</p>
-          ${prescriptionPath ? `<p><strong>Ordonnance:</strong> ${prescriptionPath}</p>` : ''}
+          ${prescriptionInfo ? `<p><strong>Ordonnance:</strong> ${prescriptionInfo.originalName} (${Math.round(prescriptionInfo.size / 1024)} KB)</p>` : ''}
+          ${prescriptionInfo ? '<p style="color: #28a745;">📎 L\'ordonnance est jointe à cet email.</p>' : ''}
         `,
+        attachments: attachment ? [attachment] : [],
       };
 
       await transporter.sendMail(mailOptions);
-      console.log('Email envoyé avec succès');
+      console.log('Email envoyé avec succès' + (attachment ? ' (avec pièce jointe)' : ''));
     } catch (emailError) {
       console.error('Erreur envoi email:', emailError);
       // Continue without failing the request
