@@ -1,0 +1,18 @@
+---
+/**
+ * KENA Google Tag Manager - Body Component (Noscript)
+ * À placer juste après l'ouverture de la balise <body>
+ * Pour les utilisateurs sans JavaScript
+ */
+
+interface Props {
+  gtmId?: string;
+}
+
+const { gtmId = 'GTM-WNRKJDN7' } = Astro.props;
+---
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->

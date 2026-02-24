@@ -2,8 +2,14 @@
 import { ViewTransitions } from 'astro:transitions';
 import SEO, { type Props as SEOProps } from '../components/SEO.astro';
 import WhatsAppButton from '../components/WhatsAppButton';
+import GTMHead from '../components/GTMHead.astro';
+import GTMBody from '../components/GTMBody.astro';
+import ConsentBanner from '../components/ConsentBanner';
 import '../styles/global.css';
 const base = import.meta.env.BASE_URL;
+
+// Configuration GTM - Remplacer par votre ID GTM
+const GTM_ID = import.meta.env.GTM_ID || 'GTM-WNRKJDN7';
 
 export interface Props {
   seo: SEOProps;
@@ -15,6 +21,9 @@ const { seo } = Astro.props;
 <!doctype html>
 <html lang="fr" class="scroll-smooth">
   <head>
+    <!-- Google Tag Manager - Le plus haut possible dans le head -->
+    <GTMHead gtmId={GTM_ID} />
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
@@ -28,6 +37,9 @@ const { seo } = Astro.props;
     <SEO {...seo} />
   </head>
   <body class="min-h-screen flex flex-col text-gray-800 bg-white">
+    <!-- Google Tag Manager (noscript) -->
+    <GTMBody gtmId={GTM_ID} />
+    
     <slot />
 
     <WhatsAppButton
@@ -35,6 +47,9 @@ const { seo } = Astro.props;
       phoneNumber="41277444488"
       message="Bonjour, je souhaite prendre rendez-vous pour une séance de physiothérapie."
     />
+    
+    <!-- Bannière de consentement RGPD/LPD -->
+    <ConsentBanner client:load />
   </body>
 </html>
 
