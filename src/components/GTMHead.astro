@@ -1,0 +1,50 @@
+---
+/**
+ * KENA Google Tag Manager - Head Component
+ * Intégration GTM avec Consent Mode v2
+ * À placer le plus haut possible dans le <head>
+ */
+
+interface Props {
+  gtmId?: string;
+  enableConsentMode?: boolean;
+}
+
+const { 
+  gtmId = 'GTM-WNRKJDN7', 
+  enableConsentMode = true 
+} = Astro.props;
+---
+
+<!-- Google Tag Manager -->
+<script is:inline define:vars={{ gtmId }}>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',gtmId);
+</script>
+<!-- End Google Tag Manager -->
+
+<!-- Consent Mode v2 (RGPD/LPD Suisse) -->
+{enableConsentMode && (
+  <script is:inline>
+    // Initialisation du Consent Mode v2
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() {
+      window.dataLayer.push(arguments);
+    };
+    
+    // Consentement par défaut - tout refusé sauf nécessaire
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
+    });
+  </script>
+)}
