@@ -1,428 +1,199 @@
-/**
- * KENA Consent Banner Component
- * Bannière de consentement RGPD/LPD suisse
- * Intégration avec Google Consent Mode v2
- */
+import { useState, useEffect } from 'react';
 
-import { useState, useEffect, useCallback } from 'react';
-import { updateConsentMode, getSavedConsentPreferences, type ConsentPreferences } from '../lib/analytics/tracking';
-
-// ============================================
-// Types
-// ============================================
-
-interface ConsentBannerProps {
-  position?: 'bottom' | 'top';
-  showDelay?: number;
-  onConsentGiven?: (preferences: ConsentPreferences) => void;
+interface ConsentPreferences {
+  necessary: boolean;
+  analytics: boolean;
+  marketing: boolean;
+  preferences: boolean;
 }
 
-// ============================================
-// Styles (CSS-in-JS via style attributes)
-// ============================================
-
-const styles = {
-  overlay: {
-    position: 'fixed' as const,
-    inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 9998,
-    opacity: 0,
-    transition: 'opacity 0.3s ease',
-  },
-  overlayVisible: {
-    opacity: 1,
-  },
-  banner: {
-    position: 'fixed' as const,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 9999,
-    backgroundColor: 'var(--color-background, #ffffff)',
-    boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)',
-    padding: '1rem',
-    transform: 'translateY(100%)',
-    transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-    maxHeight: '90vh',
-    overflowY: 'auto' as const,
-  },
-  bannerVisible: {
-    transform: 'translateY(0)',
-  },
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: '1rem',
-    marginBottom: '1rem',
-  },
-  title: {
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    color: 'var(--color-text, #1a1a1a)',
-    margin: 0,
-  },
-  description: {
-    fontSize: '0.875rem',
-    color: 'var(--color-text-muted, #666666)',
-    lineHeight: 1.6,
-    marginBottom: '1.5rem',
-  },
-  optionsGrid: {
-    display: 'grid',
-    gap: '0.75rem',
-    marginBottom: '1.5rem',
-  },
-  optionItem: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '0.75rem',
-    padding: '0.75rem',
-    backgroundColor: 'var(--color-surface, #f5f5f5)',
-    borderRadius: '0.5rem',
-    border: '1px solid var(--color-border, #e0e0e0)',
-    transition: 'border-color 0.2s ease',
-  },
-  optionItemSelected: {
-    borderColor: 'var(--color-primary, #0066cc)',
-    backgroundColor: 'var(--color-primary-light, #e6f2ff)',
-  },
-  checkbox: {
-    width: '20px',
-    height: '20px',
-    minWidth: '20px',
-    cursor: 'pointer',
-    accentColor: 'var(--color-primary, #0066cc)',
-  },
-  checkboxDisabled: {
-    cursor: 'not-allowed',
-    opacity: 0.7,
-  },
-  optionContent: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: '0.9375rem',
-    fontWeight: 500,
-    color: 'var(--color-text, #1a1a1a)',
-    marginBottom: '0.25rem',
-  },
-  optionDescription: {
-    fontSize: '0.8125rem',
-    color: 'var(--color-text-muted, #666666)',
-    lineHeight: 1.5,
-  },
-  buttonsContainer: {
-    display: 'flex',
-    flexWrap: 'wrap' as const,
-    gap: '0.75rem',
-    justifyContent: 'flex-end',
-  },
-  button: {
-    padding: '0.75rem 1.5rem',
-    fontSize: '0.9375rem',
-    fontWeight: 500,
-    borderRadius: '0.5rem',
-    border: 'none',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    minWidth: '120px',
-    minHeight: '44px',
-  },
-  buttonPrimary: {
-    backgroundColor: 'var(--color-primary, #0066cc)',
-    color: '#ffffff',
-  },
-  buttonSecondary: {
-    backgroundColor: 'var(--color-surface, #f5f5f5)',
-    color: 'var(--color-text, #1a1a1a)',
-    border: '1px solid var(--color-border, #e0e0e0)',
-  },
-  buttonAccept: {
-    backgroundColor: 'var(--color-success, #28a745)',
-    color: '#ffffff',
-  },
-  link: {
-    color: 'var(--color-primary, #0066cc)',
-    textDecoration: 'underline',
-    cursor: 'pointer',
-  },
-  detailsToggle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    background: 'none',
-    border: 'none',
-    color: 'var(--color-primary, #0066cc)',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    padding: '0.5rem 0',
-    marginBottom: '1rem',
-  },
+const defaultPreferences: ConsentPreferences = {
+  necessary: true,
+  analytics: false,
+  marketing: false,
+  preferences: false,
 };
 
-// ============================================
-// Consent Options Data
-// ============================================
-
-interface ConsentOption {
-  id: keyof ConsentPreferences;
-  title: string;
-  description: string;
-  required: boolean;
-}
-
-const consentOptions: ConsentOption[] = [
-  {
-    id: 'necessary',
-    title: 'Cookies nécessaires',
-    description: 'Essentiels au fonctionnement du site. Ne peuvent pas être désactivés.',
-    required: true,
-  },
-  {
-    id: 'analytics',
-    title: 'Cookies analytiques',
-    description: 'Nous aident à comprendre comment vous interagissez avec le site (Google Analytics 4).',
-    required: false,
-  },
-  {
-    id: 'marketing',
-    title: 'Cookies marketing',
-    description: 'Permettent de vous proposer des publicités pertinentes basées sur vos centres d\'intérêt.',
-    required: false,
-  },
-  {
-    id: 'preferences',
-    title: 'Cookies de préférences',
-    description: 'Mémorisent vos préférences pour une meilleure expérience personnalisée.',
-    required: false,
-  },
-];
-
-// ============================================
-// Component
-// ============================================
-
-export function ConsentBanner({
-  position = 'bottom',
-  showDelay = 1000,
-  onConsentGiven,
-}: ConsentBannerProps) {
+export default function ConsentBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [preferences, setPreferences] = useState<ConsentPreferences>({
-    necessary: true,
-    analytics: false,
-    marketing: false,
-    preferences: false,
-  });
+  const [preferences, setPreferences] = useState<ConsentPreferences>(defaultPreferences);
 
-  // Vérifier si le consentement a déjà été donné
   useEffect(() => {
-    const savedPreferences = getSavedConsentPreferences();
-    
-    if (!savedPreferences) {
-      // Afficher la bannière après un délai
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, showDelay);
-      
-      return () => clearTimeout(timer);
+    // Vérifier si le consentement a déjà été donné
+    const stored = sessionStorage.getItem('kena_consent_preferences');
+    if (!stored) {
+      setIsVisible(true);
     }
-  }, [showDelay]);
-
-  // Gérer le changement de préférence
-  const handlePreferenceChange = useCallback((id: keyof ConsentPreferences, checked: boolean) => {
-    setPreferences(prev => ({
-      ...prev,
-      [id]: checked,
-    }));
   }, []);
 
-  // Accepter tous les cookies
-  const handleAcceptAll = useCallback(() => {
+  const updateConsent = (newPreferences: ConsentPreferences) => {
+    // Mettre à jour le Consent Mode v2
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('consent', 'update', {
+        'analytics_storage': newPreferences.analytics ? 'granted' : 'denied',
+        'ad_storage': newPreferences.marketing ? 'granted' : 'denied',
+        'ad_user_data': newPreferences.marketing ? 'granted' : 'denied',
+        'ad_personalization': newPreferences.marketing ? 'granted' : 'denied',
+        'personalization_storage': newPreferences.preferences ? 'granted' : 'denied',
+      });
+    }
+
+    // Stocker les préférences
+    sessionStorage.setItem('kena_consent_preferences', JSON.stringify(newPreferences));
+
+    // Envoyer l'événement au dataLayer
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'consent_update',
+      consent_preferences: newPreferences,
+    });
+  };
+
+  const handleAcceptAll = () => {
     const allAccepted: ConsentPreferences = {
       necessary: true,
       analytics: true,
       marketing: true,
       preferences: true,
     };
-    
-    updateConsentMode(allAccepted);
+    updateConsent(allAccepted);
     setIsVisible(false);
-    onConsentGiven?.(allAccepted);
-  }, [onConsentGiven]);
+  };
 
-  // Refuser les cookies optionnels
-  const handleRejectOptional = useCallback(() => {
-    const onlyNecessary: ConsentPreferences = {
-      necessary: true,
-      analytics: false,
-      marketing: false,
-      preferences: false,
-    };
-    
-    updateConsentMode(onlyNecessary);
+  const handleRejectAll = () => {
+    updateConsent(defaultPreferences);
     setIsVisible(false);
-    onConsentGiven?.(onlyNecessary);
-  }, [onConsentGiven]);
+  };
 
-  // Sauvegarder les préférences personnalisées
-  const handleSavePreferences = useCallback(() => {
-    updateConsentMode(preferences);
+  const handleSavePreferences = () => {
+    updateConsent(preferences);
     setIsVisible(false);
-    onConsentGiven?.(preferences);
-  }, [preferences, onConsentGiven]);
+  };
 
-  // Toggle l'affichage des détails
-  const toggleDetails = useCallback(() => {
-    setShowDetails(prev => !prev);
-  }, []);
+  const handleToggle = (key: keyof ConsentPreferences) => {
+    if (key === 'necessary') return; // Toujours activé
+    setPreferences(prev => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
-  if (!isVisible) {
-    return null;
-  }
+  if (!isVisible) return null;
 
   return (
-    <>
-      {/* Overlay */}
-      <div
-        style={{
-          ...styles.overlay,
-          ...(isVisible ? styles.overlayVisible : {}),
-        }}
-        onClick={handleRejectOptional}
-      />
-
-      {/* Banner */}
-      <div
-        style={{
-          ...styles.banner,
-          ...(isVisible ? styles.bannerVisible : {}),
-          ...(position === 'top' ? { top: 0, bottom: 'auto', transform: 'translateY(-100%)' } : {}),
-        }}
-        role="dialog"
-        aria-labelledby="consent-title"
-        aria-describedby="consent-description"
-      >
-        <div style={styles.container}>
-          {/* Header */}
-          <div style={styles.header}>
-            <h2 id="consent-title" style={styles.title}>
-              Vos choix en matière de cookies
-            </h2>
-          </div>
-
-          {/* Description */}
-          <p id="consent-description" style={styles.description}>
-            Nous utilisons des cookies pour améliorer votre expérience, analyser le trafic et 
-            personnaliser le contenu. En cliquant sur "Accepter tout", vous consentez à notre 
-            utilisation des cookies. Vous pouvez également personnaliser vos préférences.
-            <br />
-            <a 
-              href="/politique-confidentialite" 
-              style={styles.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              En savoir plus sur notre politique de confidentialité
-            </a>
-          </p>
-
-          {/* Toggle Details Button */}
-          <button
-            onClick={toggleDetails}
-            style={styles.detailsToggle}
-            aria-expanded={showDetails}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{
-                transform: showDetails ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s ease',
-              }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-            {showDetails ? 'Masquer les options' : 'Personnaliser mes choix'}
-          </button>
-
-          {/* Options Details */}
-          {showDetails && (
-            <div style={styles.optionsGrid}>
-              {consentOptions.map((option) => (
-                <div
-                  key={option.id}
-                  style={{
-                    ...styles.optionItem,
-                    ...(preferences[option.id] && !option.required ? styles.optionItemSelected : {}),
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    id={`consent-${option.id}`}
-                    checked={preferences[option.id]}
-                    disabled={option.required}
-                    onChange={(e) => handlePreferenceChange(option.id, e.target.checked)}
-                    style={{
-                      ...styles.checkbox,
-                      ...(option.required ? styles.checkboxDisabled : {}),
-                    }}
-                    aria-describedby={`consent-${option.id}-description`}
-                  />
-                  <div style={styles.optionContent}>
-                    <div style={styles.optionTitle}>
-                      {option.title}
-                      {option.required && <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: 'var(--color-text-muted, #666)' }}>(obligatoire)</span>}
-                    </div>
-                    <div id={`consent-${option.id}-description`} style={styles.optionDescription}>
-                      {option.description}
-                    </div>
-                  </div>
-                </div>
-              ))}
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-gray-200 shadow-lg animate-fadeIn">
+      <div className="max-w-4xl mx-auto">
+        {!showDetails ? (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-600">
+              <p>
+                Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic.
+                En cliquant "Accepter tout", vous consentez à notre utilisation des cookies.
+                <a href="/privacy" className="text-blue-600 hover:underline ml-1">
+                  En savoir plus
+                </a>
+              </p>
             </div>
-          )}
-
-          {/* Buttons */}
-          <div style={styles.buttonsContainer}>
-            <button
-              onClick={handleRejectOptional}
-              style={{ ...styles.button, ...styles.buttonSecondary }}
-            >
-              Refuser les cookies optionnels
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleRejectAll}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Refuser
+              </button>
+              <button
+                onClick={() => setShowDetails(true)}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Personnaliser
+              </button>
+              <button
+                onClick={handleAcceptAll}
+                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Accepter tout
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">Préférences de cookies</h3>
             
-            {showDetails && (
+            <div className="space-y-3">
+              <CookieOption
+                title="Cookies nécessaires"
+                description="Essentiels au fonctionnement du site. Ne peuvent pas être désactivés."
+                checked={true}
+                disabled={true}
+                onChange={() => {}}
+              />
+              <CookieOption
+                title="Cookies analytiques"
+                description="Nous aident à comprendre comment vous interagissez avec le site."
+                checked={preferences.analytics}
+                onChange={() => handleToggle('analytics')}
+              />
+              <CookieOption
+                title="Cookies marketing"
+                description="Utilisés pour afficher des publicités pertinentes."
+                checked={preferences.marketing}
+                onChange={() => handleToggle('marketing')}
+              />
+              <CookieOption
+                title="Cookies de préférences"
+                description="Mémorisent vos préférences et paramètres."
+                checked={preferences.preferences}
+                onChange={() => handleToggle('preferences')}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => setShowDetails(false)}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Retour
+              </button>
               <button
                 onClick={handleSavePreferences}
-                style={{ ...styles.button, ...styles.buttonSecondary }}
+                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Sauvegarder mes choix
+                Sauvegarder mes préférences
               </button>
-            )}
-            
-            <button
-              onClick={handleAcceptAll}
-              style={{ ...styles.button, ...styles.buttonAccept }}
-            >
-              Accepter tout
-            </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
-export default ConsentBanner;
+interface CookieOptionProps {
+  title: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: () => void;
+}
+
+function CookieOption({ title, description, checked, disabled, onChange }: CookieOptionProps) {
+  return (
+    <div className="flex items-start gap-3">
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          disabled={disabled}
+          onChange={onChange}
+          className="sr-only peer"
+        />
+        <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+      </label>
+      <div>
+        <p className="text-sm font-medium text-gray-800">{title}</p>
+        <p className="text-xs text-gray-500">{description}</p>
+      </div>
+    </div>
+  );
+}

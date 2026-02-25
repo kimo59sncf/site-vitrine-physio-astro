@@ -3,7 +3,7 @@ services:
     build: .
     container_name: physio-site-container
     ports:
-      - "8080:4327"
+      - "4327:4327"
     environment:
       NODE_ENV: production
       PORT: 4327
@@ -21,9 +21,9 @@ services:
   nginx:
     image: nginx:alpine
     container_name: physio-nginx
-    expose:
-      - "80"
-      - "443"
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro

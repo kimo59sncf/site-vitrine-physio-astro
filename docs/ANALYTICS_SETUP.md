@@ -338,8 +338,8 @@ Ajoutez dans votre fichier `.env` :
 # Google Tag Manager
 GTM_ID=GTM-WNRKJDN7
 
-# Google Analytics 4 (optionnel si configuré via GTM)
-GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+# Google Analytics 4 - ID de mesure
+GA4_MEASUREMENT_ID=G-90D5SJC700
 ```
 
 ---

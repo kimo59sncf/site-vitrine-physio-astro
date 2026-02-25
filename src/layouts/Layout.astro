@@ -4,12 +4,16 @@ import SEO, { type Props as SEOProps } from '../components/SEO.astro';
 import WhatsAppButton from '../components/WhatsAppButton';
 import GTMHead from '../components/GTMHead.astro';
 import GTMBody from '../components/GTMBody.astro';
+import GTagHead from '../components/GTagHead.astro';
 import ConsentBanner from '../components/ConsentBanner';
 import '../styles/global.css';
 const base = import.meta.env.BASE_URL;
 
 // Configuration GTM - Remplacer par votre ID GTM
 const GTM_ID = import.meta.env.GTM_ID || 'GTM-WNRKJDN7';
+
+// Configuration Google Analytics 4 - ID de mesure
+const GA4_MEASUREMENT_ID = import.meta.env.GA4_MEASUREMENT_ID || 'G-90D5SJC700';
 
 export interface Props {
   seo: SEOProps;
@@ -23,6 +27,9 @@ const { seo } = Astro.props;
   <head>
     <!-- Google Tag Manager - Le plus haut possible dans le head -->
     <GTMHead gtmId={GTM_ID} />
+    
+    <!-- Google Analytics (gtag.js) - Direct measurement -->
+    <GTagHead measurementId={GA4_MEASUREMENT_ID} />
     
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

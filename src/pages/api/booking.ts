@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -26,31 +28,30 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Préparer le fichier en pièce jointe si présent
-    let attachment = null;
-    let prescriptionInfo = null;
-    
-    if (prescription && prescription.size > 0) {
+    let prescriptionPath = null;
+    let prescriptionAttachment = null;
+    if (prescription) {
       const timestamp = Date.now();
-      const filename = `ordonnance_${timestamp}_${prescription.name}`;
+      const filename = `prescription_${timestamp}_${prescription.name}`;
       
-      // Convertir le fichier en Buffer pour l'email
+      // Créer le dossier uploads s'il n'existe pas
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      // Sauvegarder le fichier
+      const filePath = path.join(uploadsDir, filename);
       const arrayBuffer = await prescription.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+      fs.writeFileSync(filePath, buffer);
       
-      attachment = {
-        filename: filename,
-        content: buffer,
-        contentType: prescription.type || 'application/octet-stream',
+      prescriptionPath = `/uploads/${filename}`;
+      prescriptionAttachment = {
+        filename: prescription.name,
+        path: filePath,
       };
-      
-      prescriptionInfo = {
-        originalName: prescription.name,
-        size: prescription.size,
-        type: prescription.type,
-      };
-      
-      console.log(`Fichier reçu: ${prescription.name} (${prescription.size} bytes)`);
+      console.log(`Fichier sauvegardé: ${prescription.name} (${prescription.size} bytes) -> ${filePath}`);
     }
 
     const booking = {
@@ -60,23 +61,35 @@ export const POST: APIRoute = async ({ request }) => {
       phone,
       reason,
       message,
-      prescriptionInfo,
+      prescriptionPath,
       createdAt: new Date().toISOString(),
       status: 'pending',
     };
 
     console.log('Nouvelle demande:', booking);
 
-    // Send email with attachment
+    // Send email
     try {
+      console.log('Configuration SMTP:', {
+        host: 'mail.infomaniak.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'contact@physiokbnyon.ch',
+        }
+      });
+
       const transporter = nodemailer.createTransport({
         host: 'mail.infomaniak.com',
-        port: 587,
-        secure: false,
+        port: 465,
+        secure: true,
         auth: {
           user: 'contact@physiokbnyon.ch',
           pass: '%U-7rk7&Flo!noAT',
         },
+        tls: {
+          rejectUnauthorized: false
+        }
       });
 
       const mailOptions = {
@@ -90,17 +103,30 @@ export const POST: APIRoute = async ({ request }) => {
           <p><strong>Téléphone:</strong> ${phone}</p>
           <p><strong>Motif:</strong> ${reason}</p>
           <p><strong>Message:</strong> ${message || 'Aucun'}</p>
-          ${prescriptionInfo ? `<p><strong>Ordonnance:</strong> ${prescriptionInfo.originalName} (${Math.round(prescriptionInfo.size / 1024)} KB)</p>` : ''}
-          ${prescriptionInfo ? '<p style="color: #28a745;">📎 L\'ordonnance est jointe à cet email.</p>' : ''}
+          ${prescriptionPath ? `<p><strong>Ordonnance:</strong> Voir pièce jointe</p>` : ''}
         `,
-        attachments: attachment ? [attachment] : [],
+        attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log('Email envoyé avec succès' + (attachment ? ' (avec pièce jointe)' : ''));
+      console.log('Tentative d\'envoi d\'email...');
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email envoyé avec succès:', info.messageId);
     } catch (emailError) {
       console.error('Erreur envoi email:', emailError);
-      // Continue without failing the request
+      console.error('Détails de l\'erreur:', emailError instanceof Error ? emailError.message : String(emailError));
+      
+      // Retourner l'erreur au client pour débogage
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Email sending failed',
+          message: emailError instanceof Error ? emailError.message : 'Unknown email error',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // TODO: Send WhatsApp message (requires API setup)

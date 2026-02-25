@@ -1,0 +1,56 @@
+---
+/**
+ * KENA Google Analytics (gtag.js) - Head Component
+ * Balise Google pour le tracking GA4
+ * ID: G-90D5SJC700
+ * 
+ * À placer le plus haut possible dans le <head>
+ * Compatible avec Consent Mode v2 et GTM existant
+ */
+
+interface Props {
+  measurementId?: string;
+  enableConsentMode?: boolean;
+}
+
+const { 
+  measurementId = 'G-90D5SJC700', 
+  enableConsentMode = true 
+} = Astro.props;
+---
+
+<!-- Google tag (gtag.js) -->
+<script async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
+
+<script is:inline define:vars={{ measurementId, enableConsentMode }}>
+  // Initialisation du dataLayer
+  window.dataLayer = window.dataLayer || [];
+  
+  // Fonction gtag globale
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  
+  // Configuration initiale avec timestamp
+  gtag('js', new Date());
+  
+  // Consent Mode v2 (RGPD/LPD Suisse) - Avant la config
+  if (enableConsentMode) {
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'granted',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
+    });
+  }
+  
+  // Configuration GA4
+  gtag('config', measurementId, {
+    'send_page_view': true,
+    'cookie_flags': 'SameSite=None;Secure'
+  });
+</script>
