@@ -1,6 +1,5 @@
 ---
 import { Award, Users, Heart, Target } from 'lucide-react';
-const base = import.meta.env.BASE_URL;
 ---
 
 <section id="about" class="py-20 md:py-32 bg-white">
@@ -20,18 +19,99 @@ const base = import.meta.env.BASE_URL;
         </p>
       </div>
 
-      <div class="bg-gradient-to-br from-medical-blue to-medical-blue-dark rounded-2xl p-8 text-white animate-slide-in-right" style="animation-delay: 0.4s; animation-fill-mode: both;">
-        <img
-          src="/images/equipe.webp"
-          alt="Équipe Qualifiée PhysioKbNyon"
-          class="w-full h-auto rounded-xl"
-        />
-        <div class="text-center mt-4">
-          <h4 class="text-2xl font-bold mb-2">Équipe Qualifiée</h4>
-          <p class="text-blue-100">Équipe formée aux méthodes les plus récentes</p>
+      <!-- Carrousel Équipe & Diplômes -->
+      <div class="relative rounded-2xl overflow-hidden shadow-xl animate-slide-in-right" style="animation-delay: 0.4s; animation-fill-mode: both;">
+        <div class="relative h-[500px] overflow-hidden">
+          <div id="carousel-slides" class="flex h-full" style="transition: transform 0.7s ease-in-out;">
+            <!-- Slide 1 : Équipe -->
+            <div class="flex-shrink-0 w-full h-full relative">
+              <img src="/images/equipe.webp" alt="Équipe Qualifiée PhysioKbNyon" class="w-full h-full object-cover rounded-xl">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                <h4 class="text-2xl font-bold mb-2">Équipe Qualifiée</h4>
+                <p class="text-blue-100">Équipe formée aux méthodes les plus récentes</p>
+              </div>
+            </div>
+            <!-- Slide 2 : Diplôme Marie Hélène -->
+            <div class="flex-shrink-0 w-full h-full relative bg-gray-50">
+              <img src="/images/diplomeMarie.jpeg" alt="Diplôme officiel Marie Hélène" class="w-full h-full object-contain p-8">
+              <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/90 to-transparent">
+                <h4 class="text-2xl font-bold text-medical-blue mb-2">Marie Hélène</h4>
+                <p class="text-gray-600">Diplôme d'État de Kinésithérapie - Formation certifiée</p>
+              </div>
+            </div>
+            <!-- Slide 3 : Diplôme Rayan -->
+            <div class="flex-shrink-0 w-full h-full relative bg-gray-50">
+              <img src="/images/diplomeRayen.jpeg" alt="Diplôme officiel Rayan" class="w-full h-full object-contain p-8">
+              <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white/90 to-transparent">
+                <h4 class="text-2xl font-bold text-medical-blue mb-2">Rayan</h4>
+                <p class="text-gray-600">Diplôme d'État de Kinésithérapie - Expert en rééducation fonctionnelle</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contrôles navigation -->
+          <button id="carousel-prev" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors z-10">
+            <svg class="w-6 h-6 text-medical-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <button id="carousel-next" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors z-10">
+            <svg class="w-6 h-6 text-medical-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+
+          <!-- Indicateurs -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white shadow-md" data-index="0"></button>
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white/50 shadow-md" data-index="1"></button>
+            <button class="carousel-dot w-3 h-3 rounded-full bg-white/50 shadow-md" data-index="2"></button>
+          </div>
         </div>
       </div>
     </div>
+
+    <script>
+      {
+        const slides = document.getElementById('carousel-slides') as HTMLElement;
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function updateCarousel() {
+          slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+          dots.forEach((dot, index) => {
+            dot.classList.toggle('bg-white', index === currentSlide);
+            dot.classList.toggle('bg-white/50', index !== currentSlide);
+          });
+        }
+
+        nextBtn?.addEventListener('click', () => {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateCarousel();
+        });
+
+        prevBtn?.addEventListener('click', () => {
+          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+          updateCarousel();
+        });
+
+        dots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateCarousel();
+          });
+        });
+
+        setInterval(() => {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateCarousel();
+        }, 5000);
+      }
+    </script>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
       <div class="text-center animate-fade-in-up" style="animation-delay: 1s; animation-fill-mode: both;">
