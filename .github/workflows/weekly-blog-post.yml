@@ -1,0 +1,120 @@
+name: Publication hebdomadaire article de blog
+
+on:
+  schedule:
+    # Chaque lundi à 9h00 UTC (11h00 heure de Paris)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    # Déclenchement manuel depuis GitHub Actions
+    inputs:
+      topic:
+        description: 'Sujet spécifique (optionnel, ignoré si queue non vide)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  publish-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ------------------------------------------------------------
+      # ÉTAPE 1 : Vérifier si la queue d'articles contient un article
+      # ------------------------------------------------------------
+      - name: Vérifier la queue d'articles
+        id: queue
+        run: |
+          if [ -f scripts/blog-queue.json ]; then
+            COUNT=$(node -e "const q = require('./scripts/blog-queue.json'); console.log(q.length);")
+            echo "count=$COUNT" >> $GITHUB_OUTPUT
+            echo "📦 Queue : $COUNT article(s)"
+          else
+            echo "count=0" >> $GITHUB_OUTPUT
+            echo "⚠️ Queue introuvable → fallback LLM"
+          fi
+
+      # ------------------------------------------------------------
+      # SCÉNARIO A : Queue non vide → publier depuis la queue
+      # ------------------------------------------------------------
+      - name: [QUEUE] Publier depuis la queue
+        id: publish-queue
+        if: steps.queue.outputs.count > 0
+        run: node scripts/publish-weekly-post.js
+
+      - name: [QUEUE] Commit & Push
+        if: steps.queue.outputs.count > 0
+        run: |
+          git config user.name "PhysioKbNyon Blog Bot"
+          git config user.email "blog-bot@physiokbnyon.ch"
+
+          BRANCH="blog-queue-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git add src/content/blog/ scripts/blog-queue.json
+          git commit -m "📝 Article depuis la queue – $(date +%Y-%m-%d)"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: [QUEUE] Créer la Pull Request
+        if: steps.queue.outputs.count > 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.publish-queue.outputs.branch }}" \
+            --title "📝 Nouvel article (queue) – ${{ steps.publish-queue.outputs.title || 'Article' }}" \
+            --body "🤖 Article publié depuis la queue. Mergez pour déployer."
+
+      # ------------------------------------------------------------
+      # SCÉNARIO B : Queue vide → générer avec OpenAI
+      # ------------------------------------------------------------
+      - name: [LLM] Générer un article avec GPT-4o
+        id: publish-llm
+        if: steps.queue.outputs.count == 0
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BLOG_TOPIC: ${{ github.event.inputs.topic || '' }}
+        run: node scripts/generate-blog-post.js
+
+      - name: [LLM] Commit & Push
+        if: steps.queue.outputs.count == 0
+        run: |
+          git config user.name "PhysioKbNyon Blog Bot"
+          git config user.email "blog-bot@physiokbnyon.ch"
+
+          BRANCH="blog-llm-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git add src/content/blog/
+          git commit -m "🤖 Article généré par IA – $(date +%Y-%m-%d)"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: [LLM] Créer la Pull Request
+        if: steps.queue.outputs.count == 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.publish-llm.outputs.branch }}" \
+            --title "🤖 Nouvel article (IA) – ${{ steps.publish-llm.outputs.title || 'Article généré' }}" \
+            --body "🤖 Article généré par GPT-4o. **Relisez avant de merger.** Mergez pour déployer."
