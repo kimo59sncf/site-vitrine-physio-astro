@@ -20,6 +20,9 @@ FROM node:18-alpine AS runtime
 
 WORKDIR /app
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
