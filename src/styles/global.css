@@ -117,5 +117,7 @@ html {
   .animate-slide-in-right,
   [style*="animation"] {
     animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

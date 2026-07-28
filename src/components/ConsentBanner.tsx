@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 interface ConsentPreferences {
   necessary: boolean;
   analytics: boolean;

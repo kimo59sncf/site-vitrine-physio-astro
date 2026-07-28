@@ -1,9 +1,10 @@
-name: Deploy Astro Site to VPS
+name: Deploy to VPS (Docker)
 
 on:
   push:
     branches:
       - master
+      - dev
 
 jobs:
   deploy:
@@ -12,17 +13,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS
+      - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 83.228.219.249
-          username: ubuntu
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            cd ~/physio-site
-            git pull origin master
-            npm install
-            npm run build
-            pm2 restart physio-site
-            pm2 save
+            set -e
+            echo "╔════════════════════════════════════════════════════════════╗"
+            echo "║   Déploiement auto CI/CD - Site Physiothérapie            ║"
+            echo "╚════════════════════════════════════════════════════════════╝"
+
+            BRANCH="${{ github.ref_name }}"
+            PROJECT_DIR="$HOME/app/physio-site"
+
+            # Si le projet n'existe pas encore, le cloner
+            if [ ! -d "$PROJECT_DIR" ]; then
+              echo "📂 Clonage initial du repository..."
+              mkdir -p "$PROJECT_DIR"
+              git clone -b "$BRANCH" https://github.com/kimo59sncf/site-vitrine-physio-astro.git "$PROJECT_DIR"
+            fi
+
+            cd "$PROJECT_DIR"
+
+            # Rendre le script exécutable et lancer
+            chmod +x vps-auto-deploy.sh
+            BRANCH="$BRANCH" ./vps-auto-deploy.sh
