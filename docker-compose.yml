@@ -4,10 +4,15 @@ services:
     container_name: physio-site-container
     ports:
       - "4327:4327"
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 4327
       HOST: 0.0.0.0
+      DATA_DIR: /app/data
+    volumes:
+      - physio-data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4327/"]
@@ -25,14 +30,53 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-ssl.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - physiotherapie-site
+      - umami
     restart: unless-stopped
+    networks:
+      - physio-network
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: physio-umami
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD:?UMAMI_DB_PASSWORD requis}@umami-db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:?UMAMI_APP_SECRET requis}
+      BASE_PATH: /umami
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 512m
+    networks:
+      - physio-network
+
+  umami-db:
+    image: postgres:16-alpine
+    container_name: physio-umami-db
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD:?UMAMI_DB_PASSWORD requis}
+    volumes:
+      - umami-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    mem_limit: 256m
     networks:
       - physio-network
 
 networks:
   physio-network:
     driver: bridge
+
+volumes:
+  physio-data:
+  umami-db-data:

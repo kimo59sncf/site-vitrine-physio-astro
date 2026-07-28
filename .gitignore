@@ -58,3 +58,6 @@ ecosystem.config.js
 *.pem
 *.key
 *.crt
+
+# Donnees locales (demandes formulaire + uploads)
+data/

@@ -1,0 +1,209 @@
+---
+export const prerender = false;
+
+import fs from 'fs';
+import path from 'path';
+import { checkAdminAuth, unauthorizedResponse } from '../../lib/admin-auth';
+
+if (!checkAdminAuth(Astro.request)) {
+  return unauthorizedResponse();
+}
+
+interface Booking {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  reason: string;
+  message: string;
+  prescriptionFile: string | null;
+  ip: string;
+  createdAt: string;
+  status: string;
+}
+
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.jsonl');
+
+let bookings: Booking[] = [];
+if (fs.existsSync(BOOKINGS_FILE)) {
+  const content = fs.readFileSync(BOOKINGS_FILE, 'utf8');
+  bookings = content
+    .split('\n')
+    .filter((line) => line.trim().length > 0)
+    .map((line) => {
+      try {
+        return JSON.parse(line) as Booking;
+      } catch {
+        return null;
+      }
+    })
+    .filter((b): b is Booking => b !== null)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+const now = new Date();
+const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+const totalMonth = bookings.filter((b) => new Date(b.createdAt) >= startOfMonth).length;
+const total7d = bookings.filter((b) => new Date(b.createdAt) >= sevenDaysAgo).length;
+const total30d = bookings.filter((b) => new Date(b.createdAt) >= thirtyDaysAgo).length;
+
+const reasonCounts: Record<string, number> = {};
+for (const b of bookings) {
+  const r = b.reason || 'Non précisé';
+  reasonCounts[r] = (reasonCounts[r] || 0) + 1;
+}
+const topReasons = Object.entries(reasonCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+const monthNames = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+const monthCounts: Record<string, number> = {};
+for (const b of bookings) {
+  const d = new Date(b.createdAt);
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  monthCounts[key] = (monthCounts[key] || 0) + 1;
+}
+const monthSeries = Object.entries(monthCounts).sort((a, b) => a[0].localeCompare(b[0])).slice(-12);
+const maxMonth = Math.max(1, ...monthSeries.map(([, c]) => c));
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+    ' ' + d.toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' });
+}
+
+function monthLabel(key: string): string {
+  const [y, m] = key.split('-');
+  return `${monthNames[parseInt(m, 10) - 1]} ${y.slice(2)}`;
+}
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Admin - Demandes de contact | PhysioKB Nyon</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background: #f1f5f9; color: #1e293b; padding: 1.5rem; }
+      .container { max-width: 1200px; margin: 0 auto; }
+      h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+      h2 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #0f766e; }
+      .subtitle { color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem; }
+      .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+      .card { background: white; border-radius: 0.75rem; padding: 1rem 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      .card .value { font-size: 1.75rem; font-weight: 700; color: #0f766e; }
+      .card .label { font-size: 0.8rem; color: #64748b; margin-top: 0.15rem; }
+      .panel { background: white; border-radius: 0.75rem; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+      .bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin-top: 0.5rem; }
+      .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+      .bar { width: 100%; max-width: 48px; background: #14b8a6; border-radius: 4px 4px 0 0; min-height: 3px; }
+      .bar-label { font-size: 0.65rem; color: #64748b; margin-top: 4px; }
+      .bar-value { font-size: 0.7rem; font-weight: 600; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+      th { text-align: left; padding: 0.6rem 0.75rem; background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-weight: 600; white-space: nowrap; }
+      td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+      tr:hover td { background: #f8fafc; }
+      .badge { display: inline-block; background: #ccfbf1; color: #0f766e; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; white-space: nowrap; }
+      .reason-row { display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+      a { color: #0f766e; }
+      .empty { text-align: center; color: #94a3b8; padding: 2.5rem; }
+      .privacy { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; font-size: 0.78rem; padding: 0.6rem 0.9rem; border-radius: 0.5rem; margin-bottom: 1.5rem; }
+      .table-scroll { overflow-x: auto; }
+      .msg { max-width: 260px; }
+      .topbar { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+      .umami-link { font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <div>
+          <h1>Espace Admin — Demandes de contact</h1>
+          <p class="subtitle">Historique des demandes reçues via le formulaire du site</p>
+        </div>
+        <a class="umami-link" href="/umami/" target="_blank" rel="noopener">📊 Statistiques visiteurs (Umami) →</a>
+      </div>
+
+      <div class="privacy">
+        ⚠️ <strong>Confidentialité :</strong> ces données sont des données personnelles (parfois de santé). Accès réservé au cabinet — conformité nLPD/RGPD.
+      </div>
+
+      <div class="cards">
+        <div class="card"><div class="value">{bookings.length}</div><div class="label">Total demandes</div></div>
+        <div class="card"><div class="value">{totalMonth}</div><div class="label">Ce mois-ci</div></div>
+        <div class="card"><div class="value">{total30d}</div><div class="label">30 derniers jours</div></div>
+        <div class="card"><div class="value">{total7d}</div><div class="label">7 derniers jours</div></div>
+      </div>
+
+      {monthSeries.length > 0 && (
+        <div class="panel">
+          <h2 style="margin-top:0">Demandes par mois</h2>
+          <div class="bars">
+            {monthSeries.map(([key, count]) => (
+              <div class="bar-wrap">
+                <span class="bar-value">{count}</span>
+                <div class="bar" style={`height: ${Math.round((count / maxMonth) * 85)}%`}></div>
+                <span class="bar-label">{monthLabel(key)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {topReasons.length > 0 && (
+        <div class="panel">
+          <h2 style="margin-top:0">Motifs les plus fréquents</h2>
+          {topReasons.map(([reason, count]) => (
+            <div class="reason-row"><span>{reason}</span><strong>{count}</strong></div>
+          ))}
+        </div>
+      )}
+
+      <div class="panel">
+        <h2 style="margin-top:0">Toutes les demandes ({bookings.length})</h2>
+        {bookings.length === 0 ? (
+          <p class="empty">Aucune demande enregistrée pour le moment.<br />Les nouvelles demandes du formulaire apparaîtront ici automatiquement.</p>
+        ) : (
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Nom</th>
+                  <th>Contact</th>
+                  <th>Motif</th>
+                  <th>Message</th>
+                  <th>Ordonnance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((b) => (
+                  <tr>
+                    <td style="white-space:nowrap">{formatDate(b.createdAt)}</td>
+                    <td><strong>{b.name}</strong></td>
+                    <td>
+                      <a href={`mailto:${b.email}`}>{b.email}</a><br />
+                      <a href={`tel:${b.phone}`}>{b.phone}</a>
+                    </td>
+                    <td><span class="badge">{b.reason || '—'}</span></td>
+                    <td class="msg">{b.message || '—'}</td>
+                    <td>
+                      {b.prescriptionFile ? (
+                        <a href={`/api/admin/ordonnance?f=${encodeURIComponent(b.prescriptionFile)}`} target="_blank" rel="noopener">📎 Voir</a>
+                      ) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  </body>
+</html>

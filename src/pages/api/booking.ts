@@ -3,6 +3,31 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 
+// Dossier de persistance (volume Docker monte sur /app/data en production)
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+const BOOKINGS_FILE = path.join(DATA_DIR, 'bookings.jsonl');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+
+function ensureDataDirs() {
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+}
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-100);
+}
+
+async function persistBooking(booking: Record<string, unknown>) {
+  try {
+    ensureDataDirs();
+    await fs.promises.appendFile(BOOKINGS_FILE, JSON.stringify(booking) + '\n', 'utf8');
+  } catch (err) {
+    // Ne jamais bloquer la demande client si la persistance echoue
+    console.error('Erreur persistance booking:', err);
+  }
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     if (request.method !== 'POST') {
@@ -28,25 +53,28 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    let prescriptionPath = null;
+    let prescriptionFile: string | null = null;
     let prescriptionAttachment = null;
-    if (prescription) {
-      const timestamp = Date.now();
-      const filename = `prescription_${timestamp}_${prescription.name}`;
-      
-      // Créer le dossier uploads s'il n'existe pas
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+    if (prescription && prescription.size > 0) {
+      // Limite de securite : 10 Mo max
+      if (prescription.size > 10 * 1024 * 1024) {
+        return new Response(JSON.stringify({ error: 'File too large (max 10 MB)' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
-      // Sauvegarder le fichier
-      const filePath = path.join(uploadsDir, filename);
+      const timestamp = Date.now();
+      const filename = `prescription_${timestamp}_${sanitizeFilename(prescription.name)}`;
+
+      // Sauvegarde HORS du dossier public (donnees de sante confidentielles)
+      ensureDataDirs();
+      const filePath = path.join(UPLOADS_DIR, filename);
       const arrayBuffer = await prescription.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      fs.writeFileSync(filePath, buffer);
-      
-      prescriptionPath = `/uploads/${filename}`;
+      await fs.promises.writeFile(filePath, buffer);
+
+      prescriptionFile = filename;
       prescriptionAttachment = {
         filename: prescription.name,
         path: filePath,
@@ -60,62 +88,64 @@ export const POST: APIRoute = async ({ request }) => {
       email,
       phone,
       reason,
-      message,
-      prescriptionPath,
+      message: message || '',
+      prescriptionFile,
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
       createdAt: new Date().toISOString(),
-      status: 'pending',
+      status: 'received',
     };
 
-    console.log('Nouvelle demande:', booking);
+    console.log('Nouvelle demande:', booking.id);
+
+    // Persistance de la demande (historique consultable sur /admin)
+    await persistBooking(booking);
 
     // Send email
     try {
-      console.log('Configuration SMTP:', {
-        host: 'mail.infomaniak.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'contact@physiokbnyon.ch',
-        }
-      });
+      const smtpHost = process.env.SMTP_HOST || 'mail.infomaniak.com';
+      const smtpPort = Number(process.env.SMTP_PORT || 465);
+      const smtpUser = process.env.SMTP_USER || 'contact@physiokbnyon.ch';
+      const smtpPass = process.env.SMTP_PASS;
 
-      const transporter = nodemailer.createTransport({
-        host: 'mail.infomaniak.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'contact@physiokbnyon.ch',
-          pass: '%U-7rk7&Flo!noAT',
-        },
-        tls: {
-          rejectUnauthorized: false
-        }
-      });
+      if (!smtpPass) {
+        console.error('SMTP_PASS non configuré : email non envoyé (demande persistée)');
+      } else {
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+          tls: {
+            rejectUnauthorized: false
+          }
+        });
 
-      const mailOptions = {
-        from: 'contact@physiokbnyon.ch',
-        to: 'contact@physiokbnyon.ch',
-        subject: 'Nouvelle demande de rendez-vous ou informations',
-        html: `
-          <h2>Nouvelle demande reçue</h2>
-          <p><strong>Nom:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Téléphone:</strong> ${phone}</p>
-          <p><strong>Motif:</strong> ${reason}</p>
-          <p><strong>Message:</strong> ${message || 'Aucun'}</p>
-          ${prescriptionPath ? `<p><strong>Ordonnance:</strong> Voir pièce jointe</p>` : ''}
-        `,
-        attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
-      };
+        const contactEmail = process.env.CONTACT_EMAIL || 'contact@physiokbnyon.ch';
+        const mailOptions = {
+          from: smtpUser,
+          to: contactEmail,
+          subject: 'Nouvelle demande de rendez-vous ou informations',
+          html: `
+            <h2>Nouvelle demande reçue</h2>
+            <p><strong>Nom:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Téléphone:</strong> ${phone}</p>
+            <p><strong>Motif:</strong> ${reason}</p>
+            <p><strong>Message:</strong> ${message || 'Aucun'}</p>
+            ${prescriptionFile ? `<p><strong>Ordonnance:</strong> Voir pièce jointe</p>` : ''}
+          `,
+          attachments: prescriptionAttachment ? [prescriptionAttachment] : [],
+        };
 
-      console.log('Tentative d\'envoi d\'email...');
-      const info = await transporter.sendMail(mailOptions);
-      console.log('Email envoyé avec succès:', info.messageId);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email envoyé avec succès:', info.messageId);
+      }
     } catch (emailError) {
       console.error('Erreur envoi email:', emailError);
-      console.error('Détails de l\'erreur:', emailError instanceof Error ? emailError.message : String(emailError));
-      
-      // Retourner l'erreur au client pour débogage
+
       return new Response(
         JSON.stringify({
           success: false,
@@ -128,8 +158,6 @@ export const POST: APIRoute = async ({ request }) => {
         }
       );
     }
-
-    // TODO: Send WhatsApp message (requires API setup)
 
     return new Response(
       JSON.stringify({
