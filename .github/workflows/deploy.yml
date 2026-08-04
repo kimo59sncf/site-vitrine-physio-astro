@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - dev
+  # Permet le déclenchement manuel et par d'autres workflows
+  # (utilisé par weekly-blog.yml après la publication d'un article)
+  workflow_dispatch:
 
 jobs:
   deploy:

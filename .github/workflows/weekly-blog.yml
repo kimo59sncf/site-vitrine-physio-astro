@@ -1,0 +1,82 @@
+name: Article de blog hebdomadaire (IA)
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Publie automatiquement un nouvel article de blog CHAQUE LUNDI.
+#
+# Fonctionnement :
+#   1. L'IA (OpenAI) choisit un sujet inédit (anti-doublon SEO + saisonnier)
+#   2. Un fichier .md est généré dans src/content/blog/
+#   3. L'article est commité et poussé sur master
+#   4. Le workflow "Deploy to VPS (Docker)" est déclenché → site rebuildé
+#      → le nouvel article apparaît sur le site + dans le sitemap.xml
+#
+# Configuration requise (une seule fois) :
+#   → GitHub → Settings → Secrets and variables → Actions → New repository secret
+#     OPENAI_API_KEY = votre clé API OpenAI (https://platform.openai.com/api-keys)
+#
+# Déclenchement manuel possible : onglet "Actions" → "Article de blog
+# hebdomadaire (IA)" → "Run workflow" (avec sujet optionnel).
+# ═══════════════════════════════════════════════════════════════════════════
+
+on:
+  schedule:
+    # Chaque lundi à 07:00 UTC = 09:00 (heure d'été Suisse) / 08:00 (hiver)
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Sujet spécifique (optionnel — sinon choix automatique par l’IA)'
+        required: false
+        type: string
+
+permissions:
+  contents: write # nécessaire pour commit/push l'article
+  actions: write # nécessaire pour déclencher le workflow de déploiement
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Générer l'article via OpenAI
+        id: generate
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o' }}
+          BLOG_TOPIC: ${{ github.event.inputs.topic || '' }}
+        run: node scripts/generate-blog-post.js
+
+      - name: Commit & push du nouvel article
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/blog/
+          if git diff --cached --quiet; then
+            echo "ℹ️  Aucun nouvel article à publier."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "📝 Blog : nouvel article automatique (${{ steps.generate.outputs.filename }}) [skip ci]"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Article publié : ${{ steps.generate.outputs.filename }}"
+          fi
+
+      # Le GITHUB_TOKEN ne déclenche pas automatiquement les autres workflows
+      # sur un push → on déclenche explicitement le déploiement pour que le
+      # site soit rebuildé immédiatement avec le nouvel article.
+      - name: Déclencher le déploiement sur le VPS
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yml --ref master
+          echo "🚀 Déploiement déclenché — l'article sera en ligne dans quelques minutes."

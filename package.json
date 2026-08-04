@@ -8,7 +8,10 @@
     "build": "astro build",
     "build:pages": "cross-env BUILD_MODE=github-pages astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "blog:generate": "node scripts/generate-blog-post.js",
+    "blog:dry-run": "node scripts/generate-blog-post.js --dry-run",
+    "blog:publish-queue": "node scripts/publish-weekly-post.js"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.1",
