@@ -12,6 +12,12 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Variable publique injectée AU BUILD (import.meta.env.PUBLIC_* est figé
+# à la compilation Astro, même en SSR). Sans elle, le traceur Umami n'est
+# pas inclus dans le HTML → aucune statistique de trafic collectée.
+ARG PUBLIC_UMAMI_WEBSITE_ID=""
+ENV PUBLIC_UMAMI_WEBSITE_ID=$PUBLIC_UMAMI_WEBSITE_ID
+
 # Build the application
 RUN npm run build
 
