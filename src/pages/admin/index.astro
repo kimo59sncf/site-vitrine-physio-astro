@@ -4,9 +4,19 @@ export const prerender = false;
 import fs from 'fs';
 import path from 'path';
 import { checkAdminAuth, unauthorizedResponse } from '../../lib/admin-auth';
+import { getUmamiDashboard } from '../../lib/umami-stats';
 
 if (!checkAdminAuth(Astro.request)) {
   return unauthorizedResponse();
+}
+
+// Statistiques de trafic Umami (échoue en douceur si Umami est indisponible)
+const umami = await getUmamiDashboard();
+
+function formatDuration(totalSeconds: number, visits: number): string {
+  if (!visits) return '—';
+  const avg = Math.round(totalSeconds / visits);
+  return `${Math.floor(avg / 60)} min ${String(avg % 60).padStart(2, '0')} s`;
 }
 
 interface Booking {
@@ -126,7 +136,39 @@ function monthLabel(key: string): string {
           <h1>Espace Admin — Demandes de contact</h1>
           <p class="subtitle">Historique des demandes reçues via le formulaire du site</p>
         </div>
-        <a class="umami-link" href="/umami/" target="_blank" rel="noopener">📊 Statistiques visiteurs (Umami) →</a>
+      </div>
+
+      <div class="panel">
+        <h2 style="margin-top:0">📊 Trafic du site — 30 derniers jours (Umami)</h2>
+        {umami ? (
+          <>
+            <div class="cards">
+              <div class="card"><div class="value">{umami.stats30d.visitors}</div><div class="label">Visiteurs uniques</div></div>
+              <div class="card"><div class="value">{umami.stats30d.visits}</div><div class="label">Visites</div></div>
+              <div class="card"><div class="value">{umami.stats30d.pageviews}</div><div class="label">Pages vues</div></div>
+              <div class="card"><div class="value">{formatDuration(umami.stats30d.totaltime, umami.stats30d.visits)}</div><div class="label">Durée moy. / visite</div></div>
+              <div class="card"><div class="value">{umami.stats30d.visits ? Math.round((umami.stats30d.bounces / umami.stats30d.visits) * 100) + ' %' : '—'}</div><div class="label">Taux de rebond</div></div>
+            </div>
+            {umami.topPages.length > 0 && (
+              <>
+                <h2>Pages les plus vues</h2>
+                {umami.topPages.map((p) => (
+                  <div class="reason-row"><span>{p.url}</span><strong>{p.views}</strong></div>
+                ))}
+              </>
+            )}
+            <p class="subtitle" style="margin-top:0.75rem">
+              Site suivi : {umami.websiteName} · ID : <code>{umami.websiteId}</code>
+              {' '}— à reporter dans <code>PUBLIC_UMAMI_WEBSITE_ID</code> du .env si absent.
+            </p>
+          </>
+        ) : (
+          <p class="empty">
+            Statistiques Umami indisponibles pour le moment.<br />
+            Vérifiez que le conteneur <code>physio-umami</code> tourne et que
+            <code>UMAMI_USER</code>/<code>UMAMI_PASSWORD</code> sont renseignés dans le .env.
+          </p>
+        )}
       </div>
 
       <div class="privacy">
