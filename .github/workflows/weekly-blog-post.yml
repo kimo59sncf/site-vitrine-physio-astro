@@ -2,8 +2,8 @@ name: Publication hebdomadaire article de blog
 
 on:
   schedule:
-    # Chaque lundi à 9h00 UTC (11h00 heure de Paris)
-    - cron: '0 9 * * 1'
+    # Chaque vendredi à 9h00 UTC (11h00 heure de Paris)
+    - cron: '0 9 * * 5'
   workflow_dispatch:
     # Déclenchement manuel depuis GitHub Actions
     inputs:

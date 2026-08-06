@@ -1,11 +1,6 @@
 services:
   physiotherapie-site:
-    build:
-      context: .
-      args:
-        # Injecté au build Astro (import.meta.env.PUBLIC_*) → active le
-        # traceur Umami dans le HTML. Valeur lue depuis le .env du projet.
-        PUBLIC_UMAMI_WEBSITE_ID: ${PUBLIC_UMAMI_WEBSITE_ID:-}
+    build: .
     container_name: physio-site-container
     ports:
       - "4327:4327"
