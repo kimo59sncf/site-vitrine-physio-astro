@@ -26,12 +26,13 @@ LOCK_FILE="/tmp/watch-deploy.lock"
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 
-# --- Verrou anti-concurrence ------------------------------------------------
-if ! mkdir "$LOCK_FILE" 2>/dev/null; then
+# --- Verrou anti-concurrence (flock : libéré automatiquement à la mort du
+#     processus, contrairement à un répertoire qui resterait bloqué) ---------
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
   log "⚠️ Déploiement déjà en cours, sortie."
   exit 0
 fi
-trap 'rmdir "$LOCK_FILE" 2>/dev/null' EXIT
 
 # --- 1. Dernier commit distant (léger, sans cloner) -------------------------
 REMOTE=$(git ls-remote "$REPO_URL" "refs/heads/$BRANCH" 2>/dev/null | awk '{print $1}')
