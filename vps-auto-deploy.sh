@@ -18,10 +18,18 @@ echo "╚═══════════════════════�
 # Configuration
 PROJECT_DIR="${PROJECT_DIR:-$HOME/app/physio-site}"
 COMPOSE_FILE="${PROJECT_DIR}/docker-compose.yml"
-BRANCH="${BRANCH:-dev}"
+BRANCH="${BRANCH:-master}"
 REPO_URL="https://github.com/kimo59sncf/site-vitrine-physio-astro.git"
 
 ACTION="${1:-deploy}"
+
+# Docker Compose : supporte à la fois `docker compose` (plugin) et
+# `docker-compose` (binaire standalone) selon ce qui est installé.
+if docker compose version >/dev/null 2>&1; then
+  DC="docker compose"
+else
+  DC="docker-compose"
+fi
 
 # Fonctions utilitaires
 success() { echo "✅ $1"; }
@@ -31,29 +39,29 @@ error()   { echo "❌ ERREUR: $1" >&2; exit 1; }
 case "$ACTION" in
   status)
     echo "📊 État des conteneurs Docker :"
-    cd "$PROJECT_DIR" 2>/dev/null && docker compose ps || docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    cd "$PROJECT_DIR" 2>/dev/null && $DC ps || docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
     exit 0
     ;;
 
   logs)
     cd "$PROJECT_DIR" || error "Dossier $PROJECT_DIR introuvable"
-    docker compose logs -f --tail=100
+    $DC logs -f --tail=100
     exit 0
     ;;
 
   restart)
     info "Redémarrage des conteneurs sans rebuild..."
     cd "$PROJECT_DIR" || error "Dossier $PROJECT_DIR introuvable"
-    docker compose restart
+    $DC restart
     success "Conteneurs redémarrés"
-    docker compose ps
+    $DC ps
     exit 0
     ;;
 
   stop)
     info "Arrêt des conteneurs..."
     cd "$PROJECT_DIR" || error "Dossier $PROJECT_DIR introuvable"
-    docker compose down
+    $DC down
     success "Conteneurs arrêtés"
     exit 0
     ;;
@@ -108,12 +116,12 @@ fi
 
 # 3. Build Docker avec docker compose
 info "🔨 Construction de l'image Docker..."
-docker compose build --no-cache || error "Échec du build Docker"
+$DC build --no-cache || error "Échec du build Docker"
 
 # 4. Redémarrage des conteneurs
 info "🔄 Redémarrage des conteneurs..."
-docker compose down || true
-docker compose up -d || error "Échec du démarrage des conteneurs"
+$DC down || true
+$DC up -d || error "Échec du démarrage des conteneurs"
 
 # 5. Nettoyage
 info "🧹 Nettoyage des anciennes images Docker..."
@@ -125,12 +133,12 @@ echo "⏳ Attente du démarrage (15 secondes)..."
 sleep 15
 
 # Vérifier que le conteneur Astro est en bonne santé
-if docker compose ps | grep -q "Up"; then
+if $DC ps | grep -q "Up"; then
   echo ""
   echo "╔════════════════════════════════════════════════════════════╗"
   echo "║          ✅ DÉPLOIEMENT RÉUSSI                             ║"
   echo "╚════════════════════════════════════════════════════════════╝"
-  docker compose ps
+  $DC ps
   echo ""
   success "Le site est en ligne !"
 else
