@@ -53,6 +53,22 @@ fi
 # --- 3. Comparer et déployer si nécessaire ----------------------------------
 if [ "$REMOTE" != "$LOCAL" ]; then
   log "🚀 Nouvelle version détectée sur $BRANCH : ${LOCAL:-vide} → $REMOTE"
+
+  # Mettre à jour le code AVANT de lancer le déploiement, pour que le
+  # vps-auto-deploy.sh exécuté soit toujours la version la plus récente.
+  # (Sans cela, on exécuterait l'ancien script chargé avant le reset.)
+  log "   Mise à jour du code local..."
+  if [ -f "$PROJECT_DIR/.env" ]; then
+    cp "$PROJECT_DIR/.env" /tmp/physio-env-backup
+  fi
+  git -C "$PROJECT_DIR" fetch origin
+  git -C "$PROJECT_DIR" checkout "$BRANCH" 2>/dev/null
+  git -C "$PROJECT_DIR" reset --hard "origin/$BRANCH"
+  if [ -f /tmp/physio-env-backup ]; then
+    cp /tmp/physio-env-backup "$PROJECT_DIR/.env"
+    rm /tmp/physio-env-backup
+  fi
+
   log "   Lancement du déploiement..."
   (
     cd "$PROJECT_DIR"
