@@ -1,5 +1,13 @@
 # Guide des Nouvelles Fonctionnalités - Version 2.0
 
+> **Auto-déploiement VPS** : le VPS surveille GitHub (cron toutes les 5 min via
+> `scripts/watch-deploy.sh`) et se met à jour + rebuild automatiquement à chaque
+> push sur `master`. Aucune action manuelle requise.
+>
+> Log : `~/watch-deploy.log` · Suivi : `tail -f ~/watch-deploy.log`
+>
+> Désactivation : `crontab -e` puis commenter la ligne `watch-deploy.sh`.
+
 ## 📋 Résumé des Modifications
 
 Cette mise à jour majeure introduit un système complet d'analytics et de gestion du consentement RGPD/LPD pour le site de physiothérapie.
