@@ -181,38 +181,25 @@ Internet → Nginx (Docker, ports 80/443) → Astro (Docker, port 4327)
 
 ## 🚀 Déploiement et mise à jour
 
-### Méthode 1 : Automatique via CI/CD (GitHub Actions) ⭐ RECOMMANDÉ
+### Méthode 1 : Auto-déploiement VPS ⭐ RECOMMANDÉ
 
-**Il suffit de pousser sur GitHub et le VPS se met à jour tout seul !**
+**Il suffit de pousser sur `master` — le VPS se met à jour tout seul !**
 
 ```bash
-# Sur votre machine locale
 git add .
 git commit -m "mise à jour du site"
-git push origin dev    # ou master
+git push origin master
 ```
 
-Le workflow GitHub Actions se déclenche automatiquement et :
-1. Se connecte en SSH au VPS
-2. Récupère le dernier code (`git pull`)
-3. Rebuild l'image Docker (`docker compose build --no-cache`)
-4. Redémarre les conteneurs (`docker compose up -d`)
-5. Nettoie les anciennes images
+Le VPS surveille GitHub toutes les 5 minutes (`scripts/watch-deploy.sh` + cron)
+et, si une nouvelle version est détectée :
+1. Récupère le code (`git fetch` + `reset --hard origin/master`), `.env` préservé
+2. Rebuild l'image Docker (`docker-compose build --no-cache`)
+3. Redémarre les conteneurs
 
 ✅ **Aucune action manuelle nécessaire sur le VPS.**
 
-#### Configuration des secrets GitHub (prérequis une seule fois)
-
-Dans `Settings > Secrets and variables > Actions`, ajouter ces secrets :
-
-| Secret | Valeur |
-|---|---|
-| `VPS_HOST` | `83.228.219.249` |
-| `VPS_USER` | `ubuntu` |
-| `VPS_PORT` | `22` |
-| `SSH_PRIVATE_KEY` | Clé privée SSH correspondant à `~/.ssh/authorized_keys` du VPS |
-
-Le workflow écoute les branches `dev` et `master` (modifiable dans `.github/workflows/deploy.yml`).
+Log de suivi : `tail -f ~/watch-deploy.log` (sur le VPS).
 
 ### Méthode 2 : Script vps-auto-deploy.sh (déclenchement manuel)
 
@@ -454,11 +441,10 @@ sudo certbot renew
 
 ## 📚 Documentation additionnelle
 
-- [Guide de déploiement VPS](./DEPLOYMENT_README.md)
-- [Guide Docker VPS](./VPS_DOCKER_GUIDE.md)
+- [Index de la documentation](./docs/README.md)
+- [Déploiement VPS (référence)](./docs/DEPLOYMENT.md)
 - [Configuration VPS](./docs/VPS_CONFIGURATION.md)
-- [Guide de déploiement](./docs/DEPLOYMENT_GUIDE.md)
-- [Configuration Analytics](./docs/ANALYTICS_SETUP.md)
+- [Automatisation du blog](./docs/BLOG_AUTOMATION.md)
 
 ---
 
