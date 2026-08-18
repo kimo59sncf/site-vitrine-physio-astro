@@ -2,8 +2,8 @@ name: Publication hebdomadaire article de blog
 
 on:
   schedule:
-    # Chaque vendredi à 9h00 UTC (11h00 heure de Paris)
-    - cron: '0 9 * * 5'
+    # Chaque mardi à 10h15 UTC (12h15 heure de Paris)
+    - cron: '15 10 * * 2'
   workflow_dispatch:
     # Déclenchement manuel depuis GitHub Actions
     inputs:
@@ -44,7 +44,7 @@ jobs:
         id: queue
         run: |
           if [ -f scripts/blog-queue.json ]; then
-            COUNT=$(node -e "const q = require('./scripts/blog-queue.json'); console.log(q.length);")
+            COUNT=$(node --input-type=commonjs -e "const q = require('./scripts/blog-queue.json'); console.log(q.length);")
             echo "count=$COUNT" >> $GITHUB_OUTPUT
             echo "📦 Queue : $COUNT article(s)"
           else
