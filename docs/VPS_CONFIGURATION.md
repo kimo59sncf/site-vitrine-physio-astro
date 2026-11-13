@@ -2,12 +2,13 @@
 
 ## Table des matières
 1. [Informations du serveur](#informations-du-serveur)
-2. [Structure des fichiers](#structure-des-fichiers)
-3. [Configuration Docker](#configuration-docker)
-4. [Configuration Nginx](#configuration-nginx)
-5. [Certificats SSL](#certificats-ssl)
-6. [Procédure de restauration](#procédure-de-restauration)
-7. [Commandes utiles](#commandes-utiles)
+2. [Sécurité](#sécurité)
+3. [Structure des fichiers](#structure-des-fichiers)
+4. [Configuration Docker](#configuration-docker)
+5. [Configuration Nginx](#configuration-nginx)
+6. [Certificats SSL](#certificats-ssl)
+7. [Procédure de restauration](#procédure-de-restauration)
+8. [Commandes utiles](#commandes-utiles)
 
 ---
 
@@ -20,6 +21,55 @@
 | **SSH** | `ssh ubuntu@83.228.219.249` |
 | **Domaine** | `physiokbnyon.ch` |
 | **DNS** | A record: `physiokbnyon.ch` -> `83.228.219.249` |
+
+---
+
+## Sécurité
+
+### SSH
+
+| Paramètre | Valeur |
+|-----------|--------|
+| Port | 22 |
+| PasswordAuthentication | no |
+| PermitRootLogin | without-password |
+| PermitEmptyPasswords | no |
+| PubkeyAuthentication | yes |
+
+- L'authentification par mot de passe est désactivée. Connexion par clé SSH uniquement.
+- Le drop-in `/etc/ssh/sshd_config.d/60-cloudimg-settings.conf` contient `PasswordAuthentication no`.
+
+### Fail2ban
+
+- Service : actif et activé au démarrage
+- Jail `sshd` : bantime 1h, findtime 10m, maxretry 5, backend systemd
+- Configuration : `/etc/fail2ban/jail.local`
+
+```bash
+# Vérifier le statut
+sudo fail2ban-client status sshd
+
+# Débannir une IP
+sudo fail2ban-client set sshd unbanip <IP>
+```
+
+### Firewall (UFW)
+
+| Port | Action | Service |
+|------|--------|---------|
+| 22 | ALLOW | SSH |
+| 80 | ALLOW | HTTP |
+| 443 | ALLOW | HTTPS |
+| 8080 | DENY | havana-stones (accès direct bloqué) |
+| 4327 | DENY | physio-site (accès direct bloqué) |
+
+- Les ports 8080 et 4327 sont fermés publiquement. L'accès se fait uniquement via nginx (80/443).
+- Règles Docker `DOCKER-USER` : DROP sur les ports internes 3000 et 4327 via l'interface `ens3`.
+
+### Swap
+
+- Fichier swap : `/swapfile` (2G)
+- Persistant via `/etc/fstab`
 
 ---
 

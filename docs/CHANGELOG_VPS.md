@@ -1,5 +1,45 @@
 # Changelog - Configuration VPS
 
+## Version 3.0 - 2026-11-13
+
+### 🔒 Durcissement sécurité
+
+#### SSH
+- **PasswordAuthentication désactivé** : `yes` → `no` (fichier `/etc/ssh/sshd_config` et drop-in `/etc/ssh/sshd_config.d/60-cloudimg-settings.conf`)
+- **Port SSH corrigé** : `Port 2222` → `Port 22` (le port 2222 n'était pas appliqué, sshd écoutait déjà sur 22 via socket-activation)
+
+#### Fail2ban
+- **Installé et activé** : fail2ban v1.0.2
+- **Jail sshd** : bantime 1h, findtime 10m, maxretry 5, backend systemd
+- **Service** : activé au démarrage (`systemctl enable fail2ban`)
+
+#### Firewall
+- **UFW** : ports 8080 et 4327 fermés (`ufw deny`)
+- **Docker DOCKER-USER** : règles DROP ajoutées pour bloquer l'accès externe aux ports internes 3000 (havana-stones) et 4327 (physio-site) via l'interface `ens3`
+- Les sites restent accessibles via nginx (80/443) uniquement
+
+### 💾 Ressources
+
+#### Disque
+- **Nettoyage Docker** : build cache purgé (2.59 GB récupérés), 8 images dangling supprimées
+- **Nettoyage logs** : journal systemd réduit à 200M (675.9M récupérés), logs btmp/syslog/auth/ufw/kern tronqués
+- **Résultat** : disque `/` passé de 96% (883M libres) à 86% (2.9G libres)
+
+#### Swap
+- **Swap 2G créé** : `/swapfile` ajouté à `/etc/fstab`
+- Aucun swap n'existait auparavant
+
+### ⬆️ Mises à jour
+
+- **nodejs** : 24.13.0 → 24.22.3
+- **pm2-ubuntu.service** : redémarré après mise à jour nodejs
+
+### ⚠️ Points restants
+
+- **Ubuntu 23.04 EOL** : migration vers 24.04 LTS requise (hors périmètre de cette intervention)
+
+---
+
 ## Version 2.0 - 2025-01-28
 
 ### 🔄 Changements majeurs
